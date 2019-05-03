@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.example.maddi.logme">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <uses-permission android:name="android.permission.VIBRATE" />
+
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <uses-permission android:name="android.permission.SEND_SMS"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/appimage"
+        android:label="@string/app_name"
+        android:supportsRtl="true"
+        android:largeHeap="true"
+        android:theme="@style/AppTheme"
+        android:name="android.support.multidex.MultiDexApplication">
+
+
+
+
+        <activity android:name="com.example.maddi.logme.StepCounterActivity"
+            android:launchMode="singleTask" android:label="StepCounter">
+
+        </activity>
+
+        <activity android:name="com.example.maddi.logme.SummaryActivity"
+            android:launchMode="singleTask" android:label="Summary">
+
+        </activity>
+
+        <activity android:name="com.example.maddi.logme.ClimbCounterActivity"
+            android:launchMode="singleTask" android:label="ClimbCounter">
+        </activity>
+
+
+        <activity android:name="com.example.maddi.logme.MainActivity"
+            android:launchMode="singleTask" android:label="Main Page">
+
+
+
+        </activity>
+        <activity android:name="com.example.maddi.logme.SensorsActivity"
+            android:launchMode="singleTask" android:label="Sensors">
+
+        </activity>
+        <activity android:name="com.example.maddi.logme.AppIntroActivity"
+
+            android:label="LogMe">
+
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+
+
+
+        </activity>
+        <activity android:name="com.example.maddi.logme.EnterInfoActivity">
+
+        </activity>
+        <activity android:name="com.example.maddi.logme.SetGoalActivity"
+            android:label="Set Goal">
+
+        </activity>
+
+        <activity android:name="com.example.maddi.logme.Activity_ViewPager">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.example.maddi.logme.StepCounterActivity" />
+        </activity>
+        <activity android:name="com.example.maddi.logme.BluetoothActivity"
+            android:label="Bluetooth"/>
+
+    </application>
+    <uses-feature
+        android:name="android.hardware.sensor.stepdetector" android:required="false"/>
+
+    <uses-feature
+        android:name="android.hardware.sensor.stepcounter" android:required="false"/>
+
+</manifest>
