@@ -20,38 +20,23 @@ import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 
-/**
- * Sample to create an animated arc based chart in the style used by Google Fit
- * <p/>
- * This is achieved using the open source DecoView library.
- *
- * @see <a href="https://github.com/bmarrdev/android-DecoView-charting">DecoView on GitHub</a>
- */
+
 public class SummaryActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
-    /**
-     * DecoView animated arc based chart
-     */
+
     private DecoView mDecoView;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
 
 
-    /**
-     * Data series index used for controlling animation of {@link DecoView}. These are set when
-     * the data series is created then used in {@link #createEvents} to specify what series to
-     * apply a given event to
-     */
+
     private int mBackIndex;
     private int mSeries1Index;
     private int mSeries2Index;
     private int mSeries3Index;
 
-    /**
-     * Maximum value for each data series in the {@link DecoView}. This can be different for each
-     * data series, in this example we are applying the same all data series
-     */
+
     private final float mSeriesMax = 50f;
 
     @Override

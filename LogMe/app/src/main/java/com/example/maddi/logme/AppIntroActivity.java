@@ -38,7 +38,7 @@ public class AppIntroActivity extends AppIntro {
     @Override
     public void onSkipPressed() {
         // Do something when users tap on Skip button.
-        Intent i = new Intent(AppIntroActivity.this, EnterInfoActivity.class);
+        Intent i = new Intent(AppIntroActivity.this, InfoActivity.class);
         startActivity(i);
         finish();
     }
@@ -46,7 +46,7 @@ public class AppIntroActivity extends AppIntro {
     @Override
     public void onDonePressed() {
         // Do something when users tap on Done button.
-        Intent i = new Intent(AppIntroActivity.this, EnterInfoActivity.class);
+        Intent i = new Intent(AppIntroActivity.this, InfoActivity.class);
         startActivity(i);
         finish();
 

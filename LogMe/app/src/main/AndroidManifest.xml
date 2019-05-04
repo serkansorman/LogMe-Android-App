@@ -64,7 +64,7 @@
 
 
         </activity>
-        <activity android:name="com.example.maddi.logme.EnterInfoActivity">
+        <activity android:name="com.example.maddi.logme.InfoActivity">
 
         </activity>
         <activity android:name="com.example.maddi.logme.SetGoalActivity"
@@ -72,11 +72,6 @@
 
         </activity>
 
-        <activity android:name="com.example.maddi.logme.Activity_ViewPager">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value="com.example.maddi.logme.StepCounterActivity" />
-        </activity>
         <activity android:name="com.example.maddi.logme.BluetoothActivity"
             android:label="Bluetooth"/>
 

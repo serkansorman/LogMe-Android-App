@@ -1,6 +1,8 @@
 package com.example.maddi.logme;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -25,11 +27,20 @@ public class SetGoalActivity extends AppCompatActivity {
         setgoal.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (stepGoal.getText().toString().length() == 0) {
-                    stepGoal.setError("Set Steps Goal");
+                String goal = stepGoal.getText().toString();
+                if (goal.length() == 0) {
+                    stepGoal.setError("Step Goal is required");
+                    return;
+                }
+                else if(Integer.parseInt(goal) < 10){
+                    stepGoal.setError("Step Goal must greater than 10");
                     return;
                 }
 
+                SharedPreferences sharedPref = getSharedPreferences("sharedPref", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPref.edit();
+                editor.putInt("StepGoal",Integer.parseInt(stepGoal.getText().toString())); //int değer ekleniyor
+                editor.commit(); //Kayıt
 
                 Intent myIntent = new Intent(SetGoalActivity.this, MainActivity.class);
                 startActivity(myIntent);

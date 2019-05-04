@@ -74,11 +74,13 @@
                 android:layout_marginBottom="10dp"
                 android:background="@color/yellowS"
                 android:hint="@string/ageInputHint"
-                android:inputType="number"
                 android:paddingLeft="50dp"
                 android:paddingTop="20dp"
                 android:paddingRight="50dp"
                 android:paddingBottom="20dp"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:maxLength="2"
                 android:textSize="18sp" />
 
         </TableRow>
@@ -97,11 +99,13 @@
                 android:layout_marginBottom="10dp"
                 android:background="@color/yellowS"
                 android:hint="@string/heightInputHint"
-                android:inputType="phone"
                 android:paddingLeft="50dp"
                 android:paddingTop="20dp"
                 android:paddingRight="50dp"
                 android:paddingBottom="20dp"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:maxLength="3"
                 android:textSize="18sp" />
         </TableRow>
 
@@ -118,11 +122,13 @@
                 android:layout_marginBottom="10dp"
                 android:background="@color/yellowS"
                 android:hint="@string/weightInputHint"
-                android:inputType="number"
                 android:paddingLeft="50dp"
                 android:paddingTop="20dp"
                 android:paddingRight="50dp"
                 android:paddingBottom="20dp"
+                android:digits="0123456789."
+                android:inputType="numberDecimal"
+                android:maxLength="3"
                 android:textSize="18sp" />
 
         </TableRow>
@@ -132,19 +138,6 @@
             android:layout_height="match_parent"
             android:gravity="center_horizontal">
 
-            <Button
-                android:id="@+id/nextbutton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:backgroundTint="@color/green"
-                android:paddingBottom="20dp"
-                android:paddingLeft="50dp"
-                android:paddingRight="50dp"
-                android:paddingTop="20dp"
-                android:text="OK"
-                android:textColor="@color/white" />
         </TableRow>
 
         <!--<ImageView-->

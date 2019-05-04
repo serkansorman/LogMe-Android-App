@@ -48,7 +48,7 @@
         android:id="@+id/container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".EnterInfoActivity"
+        tools:context=".InfoActivity"
         android:layout_below="@+id/toolbar"
         tools:ignore="MergeRootFrame"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"/>

@@ -4,13 +4,13 @@
         <item
             android:id="@+id/item1"
             android:checked="false"
-            android:icon="@drawable/summary"
+            android:icon="@drawable/homeicon"
             android:title="Main Page" />
 
         <item
             android:id="@+id/item2"
             android:checked="false"
-            android:icon="@drawable/overview"
+            android:icon="@drawable/piechart"
             android:title="Summary" />
 
         <item
@@ -22,7 +22,7 @@
         <item
             android:id="@+id/item4"
             android:checked="false"
-            android:icon="@drawable/logout"
+            android:icon="@drawable/bluetoothicon"
             android:title="Bluetooth" />
 
     </group>

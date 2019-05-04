@@ -1,9 +1,13 @@
 package com.example.maddi.logme;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -26,7 +30,7 @@ public class StepCounterActivity extends AppCompatActivity implements
     public static float evsteps;
     private DecoView mDecoView;
     private int mSeries1Index;
-    private final float mSeriesMax = 50f;
+    private float mSeriesMax = 50f;
     private Handler mHandler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
@@ -48,7 +52,15 @@ public class StepCounterActivity extends AppCompatActivity implements
         setContentView(R.layout.step_counter_layout);
         step = 0;
         mDecoView = (DecoView) findViewById(R.id.dynamicArcView);
+
+        SharedPreferences sharedPref = this.getSharedPreferences("sharedPref",Context.MODE_PRIVATE);
+        mSeriesMax = (float)sharedPref.getInt("StepGoal",50);
+
         createDataSeries1();
+
+
+
+       // System.out.println("@@@@@@@@@@"+mSeriesMax);
 
         // Start the timer
         mHandler.post(runnable);
@@ -149,6 +161,23 @@ public class StepCounterActivity extends AppCompatActivity implements
     private void update() {
 
         mDecoView.addEvent(new DecoEvent.Builder(step++).setIndex(mSeries1Index).setDuration(1000).build());
+    }
+
+
+    public void sendNotification() {
+
+        //Bildirim için titreşim,ses ve led rengi gibi ayarlar set edilir.
+        NotificationCompat.Builder builder =
+                new NotificationCompat.Builder(getApplicationContext())
+                        .setSmallIcon(R.drawable.appintrorun)
+                        .setContentTitle("Your Daily Step Goal is Completed!")
+                        .setContentText(mSeriesMax + " step")
+                        .setVibrate(new long[] { 1000, 1000})
+                        .setLights(Color.BLUE, 1000, 1000)
+                        .setSound(Settings.System.DEFAULT_NOTIFICATION_URI)
+                        .setAutoCancel(true);
+
+
     }
 
     @Override

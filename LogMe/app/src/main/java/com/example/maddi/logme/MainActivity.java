@@ -32,6 +32,7 @@ public class MainActivity extends AppCompatActivity implements
     private DrawerLayout drawerLayout;
     public static float stepMax = 0f;
     public static float calorieMax = 0f;
+    int activityIndex = 0;
     ArrayList<Integer> activityImageList;
     ArrayList<String> activityList;
     ImageView status_image;
@@ -43,12 +44,11 @@ public class MainActivity extends AppCompatActivity implements
         @Override
         public void run() {
 
-            Random rand = new Random();
 
-            int n = rand.nextInt(5);
 
-            status_image.setImageResource(activityImageList.get(n));
-            status_text.setText(activityList.get(n));
+            status_image.setImageResource(activityImageList.get(activityIndex % 5));
+            status_text.setText(activityList.get(activityIndex % 5));
+            ++activityIndex;
 
             mHandler.postDelayed(this, 2000);
         }

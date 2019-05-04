@@ -38,33 +38,33 @@ public class SensorsActivity extends AppCompatActivity implements
     float acceleration;
     float temperature;
 
-    private CircleProgressBar fats;
-    private CircleProgressBar carbs;
-    private CircleProgressBar protein;
+    private CircleProgressBar pulse_bar;
+    private CircleProgressBar acce_bar;
+    private CircleProgressBar temp_bar;
 
-    float max_fat = 200f;
-    float max_carbs = 100f;
-    float max_protein = 45f;
+    float max_pulse = 150f;
+    float max_acce = 100f;
+    float max_temperature = 45f;
     private Handler mHandler = new Handler();
 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
             final Random rand = new Random();
-            int newPosition = rand.nextInt(150);
-            fats.setProgress((100 * (newPosition)) / max_fat);
-            fats.setText(String.valueOf(newPosition));
+            int newPosition =  rand.nextInt((70) + 1) + 80;
+            pulse_bar.setProgress((100 * (newPosition)) / max_pulse);
+            pulse_bar.setText(String.valueOf(newPosition));
 
             newPosition = rand.nextInt(100);
-            carbs.setProgress((100 * (newPosition)) / max_carbs);
-            carbs.setText(String.valueOf(newPosition));
+            acce_bar.setProgress((100 * (newPosition)) / max_acce);
+            acce_bar.setText(String.valueOf(newPosition));
 
-            newPosition = rand.nextInt(45);
-            protein.setProgress((100 * (newPosition)) / max_protein);
-            protein.setText(String.valueOf(newPosition));
+            float randTemp =  35f + rand.nextFloat() * (5f);
+            temp_bar.setProgress((randTemp * 100f) / max_temperature);
+            temp_bar.setText(String.format("%.1f",randTemp));
 
 
-            mHandler.postDelayed(this, 1000);
+            mHandler.postDelayed(this, 500);
         }
     };
 
@@ -105,14 +105,14 @@ public class SensorsActivity extends AppCompatActivity implements
 
         actionBarDrawerToggle.syncState();
 
-        fats = (CircleProgressBar) findViewById(R.id.fats_progress);
-        carbs = (CircleProgressBar) findViewById(R.id.carbs_progress);
-        protein = (CircleProgressBar) findViewById(R.id.protein_progress);
+        pulse_bar = (CircleProgressBar) findViewById(R.id.fats_progress);
+        acce_bar = (CircleProgressBar) findViewById(R.id.carbs_progress);
+        temp_bar = (CircleProgressBar) findViewById(R.id.protein_progress);
 
 
        /* acceleration = (float)51;//Food_MyRecyclerViewAdapter.totalcarbs;
         impulse = (float)87;//Food_MyRecyclerViewAdapter.totalfat;
-        temperature = (float)36.4;//Food_MyRecyclerViewAdapter.totalprotein;*/
+        temperature = (float)36.4;//Food_MyRecyclerViewAdapter.totaltemp_bar;*/
         Log.d("Food Summary", String.valueOf(acceleration) + String.valueOf(impulse) + String.valueOf(temperature));
 
         // Animation
@@ -131,34 +131,34 @@ public class SensorsActivity extends AppCompatActivity implements
         translation1.setInterpolator(new BounceInterpolator());
 
 
-        fats.setWidthProgressBackground(40);
-        fats.setWidthProgressBarLine(40);
+        pulse_bar.setWidthProgressBackground(40);
+        pulse_bar.setWidthProgressBarLine(40);
 
-        fats.setTextColor(Color.BLACK);
-        fats.setTextSize(70);
-        fats.setBackgroundColor(Color.LTGRAY);
-        fats.setRoundEdgeProgress(true);
-        fats.startAnimation(translation);
-
-
-        carbs.startAnimation(translation);
-        carbs.setWidthProgressBackground(40);
-        carbs.setWidthProgressBarLine(40);
-
-        carbs.setTextColor(Color.BLACK);
-        carbs.setTextSize(70);
-        carbs.setBackgroundColor(Color.LTGRAY);
-        carbs.setRoundEdgeProgress(true);
+        pulse_bar.setTextColor(Color.BLACK);
+        pulse_bar.setTextSize(70);
+        pulse_bar.setBackgroundColor(Color.LTGRAY);
+        pulse_bar.setRoundEdgeProgress(true);
+        pulse_bar.startAnimation(translation);
 
 
-        protein.setWidthProgressBackground(40);
-        protein.setWidthProgressBarLine(40);
+        acce_bar.startAnimation(translation);
+        acce_bar.setWidthProgressBackground(40);
+        acce_bar.setWidthProgressBarLine(40);
 
-        protein.setTextColor(Color.BLACK);
-        protein.setTextSize(70);
-        protein.setBackgroundColor(Color.LTGRAY);
-        protein.setRoundEdgeProgress(true);
-        protein.setAnimation(translation1);
+        acce_bar.setTextColor(Color.BLACK);
+        acce_bar.setTextSize(70);
+        acce_bar.setBackgroundColor(Color.LTGRAY);
+        acce_bar.setRoundEdgeProgress(true);
+
+
+        temp_bar.setWidthProgressBackground(40);
+        temp_bar.setWidthProgressBarLine(40);
+
+        temp_bar.setTextColor(Color.BLACK);
+        temp_bar.setTextSize(70);
+        temp_bar.setBackgroundColor(Color.LTGRAY);
+        temp_bar.setRoundEdgeProgress(true);
+        temp_bar.setAnimation(translation1);
 
     }
 

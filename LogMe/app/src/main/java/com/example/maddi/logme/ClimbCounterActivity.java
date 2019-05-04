@@ -17,22 +17,24 @@ import android.widget.TextView;
 
 
 import com.hookedonplay.decoviewlib.DecoView;
+import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 
 public class ClimbCounterActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
-    public static float evsteps;
     private DecoView mDecoView;
     private int mSeries1Index;
-    private final float mSeriesMax = 20f;
+    private final float mSeriesMax = 10f;
     private Handler mHandler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
             update();
             mHandler.postDelayed(this, 500);
+
+
         }
     };
 
@@ -105,6 +107,7 @@ public class ClimbCounterActivity extends AppCompatActivity implements
                     textPercentage.setText(String.format("%.0f%%", percentFilled * 100f));
                 }
 
+
             }
 
             @Override
@@ -140,6 +143,7 @@ public class ClimbCounterActivity extends AppCompatActivity implements
 
             }
         });
+
 
 
         mSeries1Index = mDecoView.addSeries(seriesItem);

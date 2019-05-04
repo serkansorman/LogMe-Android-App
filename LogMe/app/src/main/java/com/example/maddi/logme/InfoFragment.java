@@ -1,5 +1,6 @@
 package com.example.maddi.logme;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
@@ -7,26 +8,21 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.RadioGroup;
+import android.widget.Toast;
 
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-
-public class BasicInfoFragment extends Fragment {
+public class InfoFragment extends Fragment {
 
     int position;
 
 
-    public BasicInfoFragment() {
+    public InfoFragment() {
     }
 
-    public static BasicInfoFragment newInstance() {
-        BasicInfoFragment fragment = new BasicInfoFragment();
+    public static InfoFragment newInstance() {
+        InfoFragment fragment = new InfoFragment();
         return fragment;
     }
 
@@ -40,7 +36,7 @@ public class BasicInfoFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        final View rootView = inflater.inflate(R.layout.fragment_basicinfo, container, false);
+        final View rootView = inflater.inflate(R.layout.fragment_info, container, false);
         final OnFloatingButtonClickListener mListener;
 
         try {
@@ -51,7 +47,7 @@ public class BasicInfoFragment extends Fragment {
                     "forgot to implement onFragmentInteractionListener");
         }
 
-        final Button next = (Button) rootView.findViewById(R.id.nextbutton);
+
 
         final FloatingActionButton fab1 = (FloatingActionButton) getActivity().findViewById(R.id.next);
         final EditText ageET = (EditText) rootView.findViewById(R.id.ageInput);
@@ -79,32 +75,39 @@ public class BasicInfoFragment extends Fragment {
         fab1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /*if (nameET.getText().toString().length() == 0) {
-                    nameET.setError("Name is required!");
-                    return;
-                }*/
-                mListener.onFloatingButtonClicked();
-                //getUsersRef("name").setValue(nameET.getText().toString());
-                //getUsersRef("phone").setValue(phoneET.getText().toString());
-                //getUsersRef("age").setValue(ageET.getText().toString());
-                //getUsersRef("height").setValue(heightET.getText().toString());
-                //getUsersRef("weight").setValue(weightET.getText().toString());
-            }
-        });
 
-        next.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                /*if (nameET.getText().toString().length() == 0) {
-                    nameET.setError("Name is required!");
+
+                if (ageET.getText().toString().length() == 0) {
+                    ageET.setError("Age is required!");
                     return;
-                }*/
+                }
+                if (heightET.getText().toString().length() == 0) {
+                    heightET.setError("Height is required!");
+                    return;
+                }
+                if (weightET.getText().toString().length() == 0) {
+                    weightET.setError("Weight is required!");
+                    return;
+                }
+                if(myRadioGroup.getCheckedRadioButtonId() == -1){
+                    Toast.makeText(getContext(), "Gender is required!", Toast.LENGTH_SHORT).show();
+                    return;
+                }
+
+
+                Bundle infos = new Bundle();
+
+                infos.putString("Age",ageET.getText().toString());
+                infos.putString("Height",heightET.getText().toString());
+                infos.putString("Weight",weightET.getText().toString());
+                infos.putInt("Gender",position);
+
+                Intent intent = getActivity().getIntent();
+                intent.putExtras(infos);
+
+
                 mListener.onFloatingButtonClicked();
-                //getUsersRef("name").setValue(nameET.getText().toString());
-                //getUsersRef("phone").setValue(phoneET.getText().toString());
-                //getUsersRef("age").setValue(ageET.getText().toString());
-                //getUsersRef("height").setValue(heightET.getText().toString());
-                //getUsersRef("weight").setValue(weightET.getText().toString());
+
             }
         });
 
@@ -113,7 +116,7 @@ public class BasicInfoFragment extends Fragment {
     }
 
     public interface OnFloatingButtonClickListener {
-        public void onFloatingButtonClicked();
+        void onFloatingButtonClicked();
     }
 }
 
