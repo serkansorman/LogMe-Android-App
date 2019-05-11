@@ -9,6 +9,6 @@ import retrofit2.http.POST;
 
 public interface ApiInterface {
 
-    @GET("service/test")
-    Call<SensorResponse> registerWithEmail();
+    @GET("service/getLastData")
+    Call<SensorResponse> getLastData();
 }
