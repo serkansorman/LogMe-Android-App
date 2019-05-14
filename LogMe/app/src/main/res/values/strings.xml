@@ -110,4 +110,6 @@
     <string name="heightInputHint">Height (cm)</string>
     <string name="weightInputHint">Weight (kg)</string>
 
+    <string name="labels">0: Standing\n1: Walking\n2: Running\n3: Sitting\n4: Climbing Up Stairs\n5: Climbing Down Stairs\n6: Sleeping\n\nCurrent Activity:</string>
+
 </resources>

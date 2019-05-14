@@ -49,12 +49,12 @@ public class InfoFragment extends Fragment {
 
 
 
-        final FloatingActionButton fab1 = (FloatingActionButton) getActivity().findViewById(R.id.next);
-        final EditText ageET = (EditText) rootView.findViewById(R.id.ageInput);
-        final EditText weightET = (EditText) rootView.findViewById(R.id.weightInput);
-        final EditText heightET = (EditText) rootView.findViewById(R.id.heightInput);
+        final FloatingActionButton fab1 = getActivity().findViewById(R.id.next);
+        final EditText ageET = rootView.findViewById(R.id.ageInput);
+        final EditText weightET = rootView.findViewById(R.id.weightInput);
+        final EditText heightET = rootView.findViewById(R.id.heightInput);
 
-        final RadioGroup myRadioGroup = (RadioGroup) rootView.findViewById(R.id.genderGroup);
+        final RadioGroup myRadioGroup = rootView.findViewById(R.id.genderGroup);
         myRadioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
@@ -69,7 +69,7 @@ public class InfoFragment extends Fragment {
             }
         });
 
-        ImageView userPhoto = (ImageView) getActivity().findViewById(R.id.userPhoto);
+        ImageView userPhoto = getActivity().findViewById(R.id.userPhoto);
         userPhoto.setImageResource(R.drawable.run3);
 
         fab1.setOnClickListener(new View.OnClickListener() {

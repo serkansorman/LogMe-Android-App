@@ -74,20 +74,20 @@ public class SensorsActivity extends AppCompatActivity implements
 
         mHandler.post(runnable);
 
-        ImageView heart_image = (ImageView) findViewById(R.id.heart_imageview);
+        ImageView heart_image = findViewById(R.id.heart_imageview);
 
         Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
         pulse.setRepeatCount(Animation.INFINITE);
         heart_image.startAnimation(pulse);
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        drawerLayout = findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle =
                 new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer) {
                     @Override
@@ -105,9 +105,9 @@ public class SensorsActivity extends AppCompatActivity implements
 
         actionBarDrawerToggle.syncState();
 
-        pulse_bar = (CircleProgressBar) findViewById(R.id.fats_progress);
-        acce_bar = (CircleProgressBar) findViewById(R.id.carbs_progress);
-        temp_bar = (CircleProgressBar) findViewById(R.id.protein_progress);
+        pulse_bar = findViewById(R.id.fats_progress);
+        acce_bar = findViewById(R.id.carbs_progress);
+        temp_bar = findViewById(R.id.protein_progress);
 
 
        /* acceleration = (float)51;//Food_MyRecyclerViewAdapter.totalcarbs;

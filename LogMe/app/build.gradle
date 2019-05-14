@@ -6,8 +6,8 @@ android {
 
     defaultConfig {
         applicationId "com.example.maddi.fitness"
-        minSdkVersion 22
-        targetSdkVersion 26
+        minSdkVersion 21
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         multiDexEnabled true

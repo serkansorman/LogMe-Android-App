@@ -1,6 +1,10 @@
 package com.example.maddi.logme;
 
+import android.Manifest;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -21,6 +25,12 @@ import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.OutputStreamWriter;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -47,21 +57,25 @@ public class BluetoothActivity extends AppCompatActivity implements
     private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
     private UUID deviceServiceUUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
     private String customBase = null;
+    private List<String> raw_accel_data = new ArrayList<>();
+    private boolean collect_data = false;
+    Integer activity = -1;
+    FileOutputStream f = null;
+    OutputStreamWriter osw = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.bluetooth_activity);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View mHeaderView = navigationView.getHeaderView(0);
 
-
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        drawerLayout = findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle =
                 new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer) {
                     @Override
@@ -93,8 +107,39 @@ public class BluetoothActivity extends AppCompatActivity implements
         });
         wifi_button.setOnClickListener(view -> {
             if (local_ip.getText().length() > 0) {
-                customBase = local_ip.getText().toString();
-                deviceInterface.sendMessage(local_ip.getText().toString());
+                //customBase = local_ip.getText().toString();
+                //deviceInterface.sendMessage(local_ip.getText().toString());
+
+                activity = Integer.parseInt(local_ip.getText().toString());
+                if (activity > -1 && activity < 7 ) {
+                    wifi_text.setText(local_ip.getText());
+                    if (Build.VERSION.SDK_INT >= 23) {
+                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
+                    }
+                    else {
+                        writeToFile();
+                    }
+
+
+                }
+                else {
+                    wifi_text.setText("Not collecting");
+                    try {
+                        if (osw != null) {
+                            osw.flush();
+                            osw.close();
+                        }
+                        if (f != null) {
+                            f.close();
+                        }
+                    }
+                    catch (Exception ex) {
+                        Log.d("IO", ex.toString());
+                    }
+
+                    collect_data = false;
+                }
+
             }
             else {
                 customBase = null;
@@ -105,28 +150,65 @@ public class BluetoothActivity extends AppCompatActivity implements
 
 
     }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+            Log.v("Perm","Permission: "+permissions[0]+ "was "+grantResults[0]);
+            writeToFile();
+        }
+    }
+
+    private void writeToFile() {
+        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
+        String fileName = "AnalysisData.csv";
+        String filePath = baseDir + "/" + fileName;
+        File textfile = new File(baseDir, fileName);
+        try {
+            if (!textfile.exists()) {
+                textfile.createNewFile();
+            }
+            f = new FileOutputStream(textfile, true);
+            osw = new OutputStreamWriter(f);
+        }
+        catch (Exception ex){
+            Log.d("IO", ex.toString());
+        }
+
+        collect_data = true;
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        startBt();
+        //startBt();
     }
 
     @Override
     protected void onPause() {
         super.onPause();
 
-
-        if (btManager != null) {
-            btManager.close();
-            clearSubscription();
-        }
+//        if (btManager != null) {
+//            btManager.close();
+//            clearSubscription();
+//        }
 
     }
 
     private void onConnectionFailure(Throwable throwable) {
         //noinspection ConstantConditions
         bleText.setText("BT ERROR");
+        try {
+            if (osw != null) {
+                osw.flush();
+                osw.close();
+            }
+            if (f != null) {
+                f.close();
+            }
+        } catch (Exception ex) {
+            Log.d("IO", ex.toString());
+        }
     }
 
     private void clearSubscription() {
@@ -156,7 +238,7 @@ public class BluetoothActivity extends AppCompatActivity implements
         deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onConnectionFailure);
 
         // Let's send a message:
-        deviceInterface.sendMessage("Hello world!");
+        //deviceInterface.sendMessage("Hello world!");
     }
 
     private void onMessageSent(String message) {
@@ -167,6 +249,18 @@ public class BluetoothActivity extends AppCompatActivity implements
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
         bleText.setText(message);
+
+        if (collect_data) {
+            String dataWithLabel = activity + "," + message + "\n";
+
+            try {
+                osw.append(dataWithLabel);
+                osw.flush();
+            }
+            catch (Exception ex) {
+                Log.d("IO", ex.toString());
+            }
+        }
     }
 
     private void makeCall() {

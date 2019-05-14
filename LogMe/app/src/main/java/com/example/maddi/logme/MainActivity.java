@@ -60,8 +60,8 @@ public class MainActivity extends AppCompatActivity implements
 
         mHandler.post(runnable);
 
-        status_image = (ImageView) findViewById(R.id.status_imageview);
-        status_text = (TextView) findViewById(R.id.status_text);
+        status_image = findViewById(R.id.status_imageview);
+        status_text = findViewById(R.id.status_text);
 
 
         Animation pulse = AnimationUtils.loadAnimation(this, R.anim.pulse);
@@ -85,13 +85,13 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        drawerLayout = findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle =
                 new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer) {
                     @Override
@@ -142,7 +142,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
         // On Click Listeners for Activities
-        final ImageView food_summary = (ImageView) findViewById(R.id.step_counter);
+        final ImageView food_summary = findViewById(R.id.step_counter);
         food_summary.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -152,7 +152,7 @@ public class MainActivity extends AppCompatActivity implements
         });
 
 
-        final ImageView stair_counter = (ImageView) findViewById(R.id.stair_counter);
+        final ImageView stair_counter = findViewById(R.id.stair_counter);
         stair_counter.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

@@ -21,9 +21,9 @@
 package com.natasa.progressviews.utils;
 
 public interface OnProgressViewListener {
-	public void onFinish();
+	void onFinish();
 
-	public void onProgressUpdate(float progress);
+	void onProgressUpdate(float progress);
 
 	void setProgress(float prog);
 

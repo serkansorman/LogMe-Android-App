@@ -25,7 +25,7 @@ public enum ProgressLineOrientation {
 
 	int value;
 
-	private ProgressLineOrientation(int value) {
+	ProgressLineOrientation(int value) {
 		this.value = value;
 	}
 

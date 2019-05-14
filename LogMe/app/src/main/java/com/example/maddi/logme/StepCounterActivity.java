@@ -51,7 +51,7 @@ public class StepCounterActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.step_counter_layout);
         step = 0;
-        mDecoView = (DecoView) findViewById(R.id.dynamicArcView);
+        mDecoView = findViewById(R.id.dynamicArcView);
 
         SharedPreferences sharedPref = this.getSharedPreferences("sharedPref",Context.MODE_PRIVATE);
         mSeriesMax = (float)sharedPref.getInt("StepGoal",50);
@@ -65,15 +65,15 @@ public class StepCounterActivity extends AppCompatActivity implements
         // Start the timer
         mHandler.post(runnable);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View mHeaderView = navigationView.getHeaderView(0);
 
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        drawerLayout = findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle =
                 new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer) {
                     @Override
@@ -108,7 +108,7 @@ public class StepCounterActivity extends AppCompatActivity implements
 
         Log.d("mSeries Data1", (String.valueOf(mSeriesMax)));
 
-        final TextView textPercentage = (TextView) findViewById(R.id.textPercentage);
+        final TextView textPercentage = findViewById(R.id.textPercentage);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
@@ -126,7 +126,7 @@ public class StepCounterActivity extends AppCompatActivity implements
         });
 
 
-        final TextView textToGo = (TextView) findViewById(R.id.textRemaining);
+        final TextView textToGo = findViewById(R.id.textRemaining);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
@@ -141,7 +141,7 @@ public class StepCounterActivity extends AppCompatActivity implements
             }
         });
 
-        final TextView textActivity1 = (TextView) findViewById(R.id.textActivity1);
+        final TextView textActivity1 = findViewById(R.id.textActivity1);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {

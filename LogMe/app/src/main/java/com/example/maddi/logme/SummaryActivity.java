@@ -43,16 +43,16 @@ public class SummaryActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.summary_activity);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        navigationView = (NavigationView) findViewById(R.id.navigation_view);
+        navigationView = findViewById(R.id.navigation_view);
         navigationView.setNavigationItemSelectedListener(this);
 
         View mHeaderView = navigationView.getHeaderView(0);
 
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        drawerLayout = findViewById(R.id.drawer);
         ActionBarDrawerToggle actionBarDrawerToggle =
                 new ActionBarDrawerToggle(this, drawerLayout, toolbar, R.string.open_drawer, R.string.close_drawer) {
                     @Override
@@ -70,7 +70,7 @@ public class SummaryActivity extends AppCompatActivity implements
 
         actionBarDrawerToggle.syncState();
 
-        mDecoView = (DecoView) findViewById(R.id.dynamicArcView);
+        mDecoView = findViewById(R.id.dynamicArcView);
 
         // Create required data series on the DecoView
         createBackSeries();
@@ -97,7 +97,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setInitialVisibility(false)
                 .build();
 
-        final TextView textPercentage = (TextView) findViewById(R.id.textPercentage);
+        final TextView textPercentage = findViewById(R.id.textPercentage);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
@@ -112,7 +112,7 @@ public class SummaryActivity extends AppCompatActivity implements
         });
 
 
-        final TextView textToGo = (TextView) findViewById(R.id.textRemaining);
+        final TextView textToGo = findViewById(R.id.textRemaining);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
@@ -126,7 +126,7 @@ public class SummaryActivity extends AppCompatActivity implements
             }
         });
 
-        final TextView textActivity1 = (TextView) findViewById(R.id.textActivity1);
+        final TextView textActivity1 = findViewById(R.id.textActivity1);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
@@ -148,7 +148,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setInitialVisibility(false)
                 .build();
 
-        final TextView textActivity2 = (TextView) findViewById(R.id.textActivity2);
+        final TextView textActivity2 = findViewById(R.id.textActivity2);
 
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
@@ -171,7 +171,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setInitialVisibility(false)
                 .build();
 
-        final TextView textActivity3 = (TextView) findViewById(R.id.textActivity3);
+        final TextView textActivity3 = findViewById(R.id.textActivity3);
 
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override

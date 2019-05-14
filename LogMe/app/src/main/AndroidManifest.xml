@@ -17,9 +17,7 @@
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
+    <uses-sdk tools:overrideLibrary="com.natasa.progressviews"/>
 
     <application
         android:allowBackup="true"
@@ -51,7 +49,12 @@
         <activity android:name="com.example.maddi.logme.MainActivity"
             android:launchMode="singleTask" android:label="Main Page">
 
-
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
 
         </activity>
         <activity android:name="com.example.maddi.logme.SensorsActivity"
@@ -59,17 +62,9 @@
 
         </activity>
         <activity android:name="com.example.maddi.logme.AppIntroActivity"
-
             android:label="LogMe">
-
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-
-
         </activity>
+
         <activity android:name="com.example.maddi.logme.InfoActivity">
 
         </activity>
