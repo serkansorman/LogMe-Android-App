@@ -12,10 +12,10 @@ import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.Disposable;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
+import umich.cse.yctung.androidlibsvm.LibSVM;
 
 public class MainApplication extends Application {
     private ApiInterface apiInterface;
@@ -27,6 +27,8 @@ public class MainApplication extends Application {
     public SimpleBluetoothDeviceInterface deviceInterface;
     private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
     private long time = 0;
+    public LibSVM svm;
+
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -41,6 +43,8 @@ public class MainApplication extends Application {
         super.onCreate();
 
         startBt();
+
+        svm = new LibSVM();
     }
 
     private ApiInterface createApiInterface(String customBase) {

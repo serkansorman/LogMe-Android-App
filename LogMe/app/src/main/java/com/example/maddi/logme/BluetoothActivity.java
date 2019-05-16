@@ -99,11 +99,6 @@ public class BluetoothActivity extends AppCompatActivity implements
     protected void onPause() {
         super.onPause();
 
-//        if (btManager != null) {
-//            btManager.close();
-//            clearSubscription();
-//        }
-
     }
 
     private void initBtButton() {

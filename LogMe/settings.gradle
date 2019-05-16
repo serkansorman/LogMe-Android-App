@@ -1,1 +1,1 @@
-include ':app', ':progressviewslib'
+include ':app', ':progressviewslib', ':androidlibsvm-release'
