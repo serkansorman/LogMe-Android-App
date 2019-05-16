@@ -41,11 +41,11 @@ public class SensorsActivity extends AppCompatActivity implements
     private CircleProgressBar temp_bar;
 
     float max_pulse = 150f;
-    float max_acce = 100f;
+    float max_acce = 10f;
     float max_temperature = 45f;
 
     public static int currentPulse = 80;
-    public static int acceleration = 100;
+    public static float acceleration = 0f;
     public static float temperature = 36.7f;
 
 
@@ -156,11 +156,13 @@ public class SensorsActivity extends AppCompatActivity implements
         return metrics.widthPixels;
     }
 
-    public static void updateProgress(int pulse, int acce, float temp){
+    public static void updateProgress(int pulse, float acce, float temp){
 
         currentPulse = pulse;
         acceleration = acce;
         temperature = temp;
+
+
     }
 
     private void updateAll(){
