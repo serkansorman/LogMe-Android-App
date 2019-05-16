@@ -172,7 +172,7 @@ public class SensorsActivity extends AppCompatActivity implements
 
 
         acce_bar.setProgress((100 * (acceleration)) / max_acce);
-        acce_bar.setText(String.valueOf(acceleration));
+        acce_bar.setText(String.format("%.2f",acceleration));
 
 
         temp_bar.setProgress((temperature * 100f) / max_temperature);
