@@ -95,7 +95,7 @@ public class BluetoothActivity extends AppCompatActivity implements
         bt_button = findViewById(R.id.bt_button);
         wifi_button = findViewById(R.id.wifi_button);
         wifi_text = findViewById(R.id.wifi_text);
-        local_ip = findViewById(R.id.local_ip);
+       // local_ip = findViewById(R.id.local_ip);
         bt_button.setOnClickListener(view -> {
             if (connectionDisposable != null) {
                 connectionDisposable.dispose();
