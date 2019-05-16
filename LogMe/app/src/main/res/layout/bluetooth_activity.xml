@@ -15,7 +15,6 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
         tools:context=".MainActivityFragment">
 
-
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -33,10 +32,10 @@
             android:layout_height="wrap_content"
 
 
+            android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            android:text="TextView"
+            android:text="bluetooth"
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -59,10 +58,44 @@
             android:layout_height="wrap_content"
 
 
+            android:layout_marginEnd="32dp"
             android:layout_marginStart="32dp"
             android:layout_marginTop="32dp"
+            android:text="Wifi"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bt_button" />
+
+        <TextView
+            android:id="@+id/wifi_passw"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+
             android:layout_marginEnd="32dp"
-            android:text="TextView"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="96dp"
+            android:text="Wifi Password"
+            android:textColor="@color/black"
+            android:textSize="18sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.498"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/bt_button" />
+
+        <TextView
+            android:id="@+id/host_text"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+
+
+            android:layout_marginEnd="32dp"
+            android:layout_marginStart="32dp"
+            android:layout_marginTop="150dp"
+            android:text="Host"
             android:textColor="@color/black"
             android:textSize="18sp"
             app:layout_constraintEnd_toEndOf="parent"
@@ -74,47 +107,36 @@
             android:id="@+id/wifi_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:text="Choose Activity"
+            android:layout_marginTop="160dp"
+            android:text="WIFI"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.498"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/wifi_text" />
 
-        <EditText
-            android:id="@+id/local_ip"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="32dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="32dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/wifi_button" />
+        <!--
+            <TextView
+                android:id="@+id/textView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="8dp"
+                android:text="@string/labels"
+                android:textAlignment="center"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/local_ip" /> -->
 
-        <TextView
-            android:id="@+id/textView"
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <android.support.design.widget.NavigationView
+            android:id="@+id/navigation_view"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="8dp"
-            android:text="@string/labels"
-            android:textAlignment="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/local_ip" />
+            android:layout_height="match_parent"
+            android:layout_gravity="start"
+            app:itemIconTint="@color/blue"
+            app:menu="@menu/drawer"></android.support.design.widget.NavigationView>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
-
-    <android.support.design.widget.NavigationView
-        android:id="@+id/navigation_view"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        app:itemIconTint="@color/blue"
-        app:menu="@menu/drawer"></android.support.design.widget.NavigationView>
-
-</android.support.v4.widget.DrawerLayout>
+    </android.support.v4.widget.DrawerLayout>
 
