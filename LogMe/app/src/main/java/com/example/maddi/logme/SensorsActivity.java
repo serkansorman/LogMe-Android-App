@@ -34,9 +34,7 @@ public class SensorsActivity extends AppCompatActivity implements
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
 
-    float impulse;
-    float acceleration;
-    float temperature;
+
 
     private CircleProgressBar pulse_bar;
     private CircleProgressBar acce_bar;
@@ -45,25 +43,20 @@ public class SensorsActivity extends AppCompatActivity implements
     float max_pulse = 150f;
     float max_acce = 100f;
     float max_temperature = 45f;
+
+    public static int currentPulse = 80;
+    public static int acceleration = 100;
+    public static float temperature = 36.7f;
+
+
+
     private Handler mHandler = new Handler();
 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            final Random rand = new Random();
-            int newPosition =  rand.nextInt((70) + 1) + 80;
-            pulse_bar.setProgress((100 * (newPosition)) / max_pulse);
-            pulse_bar.setText(String.valueOf(newPosition));
 
-            newPosition = rand.nextInt(100);
-            acce_bar.setProgress((100 * (newPosition)) / max_acce);
-            acce_bar.setText(String.valueOf(newPosition));
-
-            float randTemp =  35f + rand.nextFloat() * (5f);
-            temp_bar.setProgress((randTemp * 100f) / max_temperature);
-            temp_bar.setText(String.format("%.1f",randTemp));
-
-
+            updateAll();
             mHandler.postDelayed(this, 500);
         }
     };
@@ -109,11 +102,6 @@ public class SensorsActivity extends AppCompatActivity implements
         acce_bar = findViewById(R.id.carbs_progress);
         temp_bar = findViewById(R.id.protein_progress);
 
-
-       /* acceleration = (float)51;//Food_MyRecyclerViewAdapter.totalcarbs;
-        impulse = (float)87;//Food_MyRecyclerViewAdapter.totalfat;
-        temperature = (float)36.4;//Food_MyRecyclerViewAdapter.totaltemp_bar;*/
-        Log.d("Food Summary", String.valueOf(acceleration) + String.valueOf(impulse) + String.valueOf(temperature));
 
         // Animation
         TranslateAnimation translation;
@@ -167,6 +155,28 @@ public class SensorsActivity extends AppCompatActivity implements
         getWindowManager().getDefaultDisplay().getMetrics(metrics);
         return metrics.widthPixels;
     }
+
+    public static void updateProgress(int pulse, int acce, float temp){
+
+        currentPulse = pulse;
+        acceleration = acce;
+        temperature = temp;
+    }
+
+    private void updateAll(){
+
+        pulse_bar.setProgress((100 * (currentPulse)) / max_pulse);
+        pulse_bar.setText(String.valueOf(currentPulse));
+
+
+        acce_bar.setProgress((100 * (acceleration)) / max_acce);
+        acce_bar.setText(String.valueOf(acceleration));
+
+
+        temp_bar.setProgress((temperature * 100f) / max_temperature);
+        temp_bar.setText(String.format("%.1f",temperature));
+    }
+
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {

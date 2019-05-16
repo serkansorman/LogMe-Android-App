@@ -1,0 +1,12 @@
+<component name="libraryTable">
+  <library name="Gradle: com.github.harry1453:android-bluetooth-serial-v1.1.1">
+    <CLASSES>
+      <root url="file://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/android-bluetooth-serial-v1.1.1.aar/bbe63ac65d2b472056f6963d4d51b18e/res" />
+      <root url="jar://$USER_HOME$/.gradle/caches/transforms-1/files-1.1/android-bluetooth-serial-v1.1.1.aar/bbe63ac65d2b472056f6963d4d51b18e/jars/classes.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES>
+      <root url="jar://$USER_HOME$/.gradle/caches/modules-2/files-2.1/com.github.harry1453/android-bluetooth-serial/v1.1.1/82054831ce0414197d96cf06f94538196dbd4f5e/android-bluetooth-serial-v1.1.1-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
