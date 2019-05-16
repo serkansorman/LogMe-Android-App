@@ -12,6 +12,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -45,23 +46,12 @@ public class BluetoothActivity extends AppCompatActivity implements
 
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    private TextView bleText;
-    private Button bt_button;
     private Button wifi_button;
-    private TextView wifi_text;
-    private EditText local_ip;
-    MainApplication mainApplication;
-    private BluetoothManager btManager;
-    private SimpleBluetoothDeviceInterface deviceInterface;
-    private Disposable connectionDisposable;
-    private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
-    private UUID deviceServiceUUID = UUID.fromString("beb5483e-36e1-4688-b7f5-ea07361b26a8");
+    private EditText ssid;
+    private EditText password;
+    private EditText host;
+
     private String customBase = null;
-    private List<String> raw_accel_data = new ArrayList<>();
-    private boolean collect_data = false;
-    Integer activity = -1;
-    FileOutputStream f = null;
-    OutputStreamWriter osw = null;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -91,91 +81,12 @@ public class BluetoothActivity extends AppCompatActivity implements
 
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
-        bleText = findViewById(R.id.ble_text);
-        bt_button = findViewById(R.id.bt_button);
         wifi_button = findViewById(R.id.wifi_button);
-        wifi_text = findViewById(R.id.wifi_text);
-       // local_ip = findViewById(R.id.local_ip);
-        bt_button.setOnClickListener(view -> {
-            if (connectionDisposable != null) {
-                connectionDisposable.dispose();
-                clearSubscription();
-            }
-            else {
-                startBt();
-            }
-        });
-        wifi_button.setOnClickListener(view -> {
-            if (local_ip.getText().length() > 0) {
-                //customBase = local_ip.getText().toString();
-                //deviceInterface.sendMessage(local_ip.getText().toString());
+        ssid = findViewById(R.id.ssid_edit);
+        password = findViewById(R.id.password_edit);
+        host = findViewById(R.id.host_edit);
 
-                activity = Integer.parseInt(local_ip.getText().toString());
-                if (activity > -1 && activity < 7 ) {
-                    wifi_text.setText(local_ip.getText());
-                    if (Build.VERSION.SDK_INT >= 23) {
-                        requestPermissions(new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 101);
-                    }
-                    else {
-                        writeToFile();
-                    }
-
-
-                }
-                else {
-                    wifi_text.setText("Not collecting");
-                    try {
-                        if (osw != null) {
-                            osw.flush();
-                            osw.close();
-                        }
-                        if (f != null) {
-                            f.close();
-                        }
-                    }
-                    catch (Exception ex) {
-                        Log.d("IO", ex.toString());
-                    }
-
-                    collect_data = false;
-                }
-
-            }
-            else {
-                customBase = null;
-            }
-            //makeCall();
-
-        });
-
-
-    }
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-            Log.v("Perm","Permission: "+permissions[0]+ "was "+grantResults[0]);
-            writeToFile();
-        }
-    }
-
-    private void writeToFile() {
-        String baseDir = android.os.Environment.getExternalStorageDirectory().getAbsolutePath();
-        String fileName = "AnalysisData.csv";
-        String filePath = baseDir + "/" + fileName;
-        File textfile = new File(baseDir, fileName);
-        try {
-            if (!textfile.exists()) {
-                textfile.createNewFile();
-            }
-            f = new FileOutputStream(textfile, true);
-            osw = new OutputStreamWriter(f);
-        }
-        catch (Exception ex){
-            Log.d("IO", ex.toString());
-        }
-
-        collect_data = true;
+        initBtButton();
     }
 
     @Override
@@ -195,72 +106,32 @@ public class BluetoothActivity extends AppCompatActivity implements
 
     }
 
-    private void onConnectionFailure(Throwable throwable) {
-        //noinspection ConstantConditions
-        bleText.setText("BT ERROR");
-        try {
-            if (osw != null) {
-                osw.flush();
-                osw.close();
+    private void initBtButton() {
+        wifi_button.setOnClickListener(view -> {
+            boolean error = false;
+            if (TextUtils.isEmpty(ssid.getText())) {
+                ssid.setError("SSID Required!!!");
+                error = true;
             }
-            if (f != null) {
-                f.close();
+            if (TextUtils.isEmpty(host.getText())){
+                host.setError("Host Address Required!!!");
+                error = true;
             }
-        } catch (Exception ex) {
-            Log.d("IO", ex.toString());
-        }
-    }
-
-    private void clearSubscription() {
-        connectionDisposable = null;
-        bleText.setText("BT CLOSED");
-    }
-
-    private void startBt() {
-        btManager = BluetoothManager.getInstance();
-        if (btManager == null) {
-            Toast.makeText(this, "Bluetooth not available", Toast.LENGTH_LONG).show();
-            finish();
-        }
-
-        connectionDisposable = btManager.openSerialDevice(deviceMacAddress)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onConnected, this::onConnectionFailure);
-    }
-
-    private void onConnected(BluetoothSerialDevice connectedDevice) {
-        // You are now connected to this device!
-        // Here you may want to retain an instance to your device:
-        deviceInterface = connectedDevice.toSimpleDeviceInterface();
-
-        // Listen to bluetooth events
-        deviceInterface.setListeners(this::onMessageReceived, this::onMessageSent, this::onConnectionFailure);
-
-        // Let's send a message:
-        //deviceInterface.sendMessage("Hello world!");
-    }
-
-    private void onMessageSent(String message) {
-        // We sent a message! Handle it here.
-        Toast.makeText(this, "Sent a message! Message was: " + message, Toast.LENGTH_LONG).show(); // Replace context with your context instance.
-    }
-
-    private void onMessageReceived(String message) {
-        // We received a message! Handle it here.
-        bleText.setText(message);
-
-        if (collect_data) {
-            String dataWithLabel = activity + "," + message + "\n";
-
-            try {
-                osw.append(dataWithLabel);
-                osw.flush();
+            if (TextUtils.isEmpty(password.getText())) {
+                password.setError("Password Required!!!");
+                error = true;
             }
-            catch (Exception ex) {
-                Log.d("IO", ex.toString());
+
+            if (error) return;
+
+            String hostAddr = host.getText().toString();
+            if (hostAddr.charAt(host.length() - 1) != '/') {
+                hostAddr += '/';
             }
-        }
+            String btMessage = ssid.getText().toString() + "," + password.getText().toString() + "," + hostAddr;
+
+            ((MainApplication) getApplication()).deviceInterface.sendMessage(btMessage);
+        });
     }
 
     private void makeCall() {
@@ -272,7 +143,7 @@ public class BluetoothActivity extends AppCompatActivity implements
                 int code = response.code();
                 SensorResponse res = response.body();
                 try {
-                    wifi_text.setText(res.data.get(0).toString());
+                    //wifi_text.setText(res.data.get(0).toString());
                 } catch (NullPointerException ex) {
                     Log.d("WIFI", ex.toString());
                 }
@@ -280,7 +151,7 @@ public class BluetoothActivity extends AppCompatActivity implements
 
             @Override
             public void onFailure(Call<SensorResponse> call, Throwable t) {
-                wifi_text.setText("SERVER ERROR");
+                //wifi_text.setText("SERVER ERROR");
             }
         });
     }

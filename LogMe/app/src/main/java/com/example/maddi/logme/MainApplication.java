@@ -1,5 +1,6 @@
 package com.example.maddi.logme;
 
+import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
 import android.util.Log;
@@ -23,10 +24,9 @@ public class MainApplication extends Application {
     public static String baseUrl = "http://192.168.43.234:6502/api/";
 
     private BluetoothManager btManager;
-    private SimpleBluetoothDeviceInterface deviceInterface;
-    private Disposable connectionDisposable;
+    public SimpleBluetoothDeviceInterface deviceInterface;
     private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
-
+    private long time = 0;
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -48,25 +48,24 @@ public class MainApplication extends Application {
         return apiInterface;
     }
 
+    @SuppressLint("CheckResult")
     private void startBt() {
         btManager = BluetoothManager.getInstance();
         if (btManager == null) {
             Toast.makeText(this, "Bluetooth not available", Toast.LENGTH_LONG).show();
         }
 
-        connectionDisposable = btManager.openSerialDevice(deviceMacAddress)
+        //noinspection ResultOfMethodCallIgnored
+        btManager.openSerialDevice(deviceMacAddress)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onConnected, this::onConnectionFailure);
     }
 
-    private void clearSubscription() {
-        connectionDisposable = null;
-    }
-
     private void onConnected(BluetoothSerialDevice connectedDevice) {
         // You are now connected to this device!
         // Here you may want to retain an instance to your device:
+
         deviceInterface = connectedDevice.toSimpleDeviceInterface();
 
         // Listen to bluetooth events
@@ -74,6 +73,7 @@ public class MainApplication extends Application {
 
         // Let's send a message:
         //deviceInterface.sendMessage("Hello world!");
+        Toast.makeText(this, "BT Connected", Toast.LENGTH_LONG).show(); // Replace context with your context instance.
     }
 
     private void onMessageSent(String message) {
@@ -102,16 +102,18 @@ public class MainApplication extends Application {
             Log.d("BT", "Cant parse");
         }
         double acc = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
-
         SensorsActivity.updateProgress(bpm, (float) acc, temp);
-
+        acc = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        StepCounterActivity.updateAcceleration(acc);
         // Also send acceleration and gyroscope data to server and get prediction
     }
 
     private void onConnectionFailure(Throwable throwable) {
         Toast.makeText(this, "BT ERROR " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-        clearSubscription();
-
-        startBt();
+        long current = System.currentTimeMillis() - time;
+        time = System.currentTimeMillis();
+        if (current > 1000) {
+            startBt();
+        }
     }
 }
