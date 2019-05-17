@@ -3,6 +3,7 @@ package com.example.maddi.logme;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
+import android.hardware.Sensor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -10,6 +11,7 @@ import com.example.maddi.logme.API.ApiInterface;
 import com.example.maddi.logme.API.Models.ActivityType;
 import com.example.maddi.logme.API.Models.SensorData;
 import com.example.maddi.logme.API.Request.RawDataRequest;
+import com.example.maddi.logme.API.Response.PredictResult;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
@@ -28,7 +30,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainApplication extends Application {
     private ApiInterface apiInterface;
 
-    public static String baseUrl = "http://10.1.40.57:6502/api/service/";
+    public static String baseUrl = "http://192.168.43.172:6503/api/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
 
     public SimpleBluetoothDeviceInterface deviceInterface;
@@ -50,7 +52,7 @@ public class MainApplication extends Application {
     @Override
     public void onCreate() {
         super.onCreate();
-
+        apiInterface = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build().create(ApiInterface.class);
         startBt();
     }
 
@@ -130,35 +132,41 @@ public class MainApplication extends Application {
         long current = System.currentTimeMillis() - timer;
         timer = System.currentTimeMillis();
         if (current > 1000) {
-            //makeCall();
+            makeCall();
         }
         double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
         mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
         SensorsActivity.updateProgress(bpm, (float) acc, temp);
         acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
         StepCounterActivity.updateAcceleration(acc);
-        // Also send acceleration and gyroscope data to server and get prediction
     }
 
     private void onConnectionFailure(Throwable throwable) {
         Toast.makeText(this, "BT ERROR " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+        Log.e("BT", throwable.getMessage());
         long current = System.currentTimeMillis() - connectionFailureTimer;
         connectionFailureTimer = System.currentTimeMillis();
         btOn = false;
+
     }
 
     private void makeCall() {
-        Call<String> request = apiInterface.sendData(new RawDataRequest(mDataList));
+        Call<PredictResult> request = apiInterface.sendData(new RawDataRequest(mDataList));
 
-        request.enqueue(new Callback<String>() {
+        request.enqueue(new Callback<PredictResult>() {
             @Override
-            public void onResponse(Call<String> call, Response<String> response) {
-                Toast.makeText(tempThis, response.body(), Toast.LENGTH_SHORT).show();
+            public void onResponse(Call<PredictResult> call, Response<PredictResult> response) {
+                if (response.body() != null && response.body().activity != null) {
+                    Toast.makeText(tempThis, response.body().activity, Toast.LENGTH_SHORT).show();
+                    currentActivity = ActivityType.values()[response.body().activity];
+                }
+                mDataList = new ArrayList<>();
             }
 
             @Override
-            public void onFailure(Call<String> call, Throwable t) {
+            public void onFailure(Call<PredictResult> call, Throwable t) {
                 currentActivity = null;
+                mDataList = new ArrayList<>();
             }
         });
     }
