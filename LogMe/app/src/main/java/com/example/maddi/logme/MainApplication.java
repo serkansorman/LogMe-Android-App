@@ -10,7 +10,6 @@ import com.example.maddi.logme.API.ApiInterface;
 import com.example.maddi.logme.API.Models.ActivityType;
 import com.example.maddi.logme.API.Models.SensorData;
 import com.example.maddi.logme.API.Request.RawDataRequest;
-import com.example.maddi.logme.API.Response.SensorResponse;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
@@ -32,14 +31,13 @@ public class MainApplication extends Application {
     public static String baseUrl = "http://10.1.40.57:6502/api/service/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
 
-    private BluetoothManager btManager;
     public SimpleBluetoothDeviceInterface deviceInterface;
-    private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
     private long connectionFailureTimer = 0;
     private long timer = 0;
     private List<SensorData> mDataList = new ArrayList<>();
     public ActivityType currentActivity = null;
     private MainApplication tempThis = this;
+    public boolean btOn = false;
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -67,23 +65,26 @@ public class MainApplication extends Application {
     }
 
     @SuppressLint("CheckResult")
-    private void startBt() {
-        btManager = BluetoothManager.getInstance();
+    public void startBt() {
+        BluetoothManager btManager = BluetoothManager.getInstance();
         if (btManager == null) {
             Toast.makeText(this, "Bluetooth not available", Toast.LENGTH_LONG).show();
+            startBt();
+            return;
         }
 
+        String deviceMacAddress = "B4:E6:2D:E9:53:B7";
         //noinspection ResultOfMethodCallIgnored
         btManager.openSerialDevice(deviceMacAddress)
                 .subscribeOn(Schedulers.newThread())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(this::onConnected, this::onConnectionFailure);
+        btOn = true;
     }
 
     private void onConnected(BluetoothSerialDevice connectedDevice) {
         // You are now connected to this device!
         // Here you may want to retain an instance to your device:
-
         deviceInterface = connectedDevice.toSimpleDeviceInterface();
 
         // Listen to bluetooth events
@@ -129,8 +130,7 @@ public class MainApplication extends Application {
         long current = System.currentTimeMillis() - timer;
         timer = System.currentTimeMillis();
         if (current > 1000) {
-            timer = 0;
-            makeCall();
+            //makeCall();
         }
         double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
         mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
@@ -144,10 +144,7 @@ public class MainApplication extends Application {
         Toast.makeText(this, "BT ERROR " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
         long current = System.currentTimeMillis() - connectionFailureTimer;
         connectionFailureTimer = System.currentTimeMillis();
-        if (current > 1000) {
-            startBt();
-            connectionFailureTimer = 0;
-        }
+        btOn = false;
     }
 
     private void makeCall() {
@@ -165,4 +162,6 @@ public class MainApplication extends Application {
             }
         });
     }
+
+
 }

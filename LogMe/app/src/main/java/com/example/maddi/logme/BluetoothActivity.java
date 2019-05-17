@@ -37,7 +37,7 @@ public class BluetoothActivity extends AppCompatActivity implements
     private EditText ssid;
     private EditText password;
     private EditText host;
-
+    private MainApplication app;
     private String customBase = null;
 
     @Override
@@ -65,7 +65,7 @@ public class BluetoothActivity extends AppCompatActivity implements
                         super.onDrawerOpened(drawerView);
                     }
                 };
-
+        app =  ((MainApplication) getApplication());
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
         actionBarDrawerToggle.syncState();
         wifi_button = findViewById(R.id.wifi_button);
@@ -79,7 +79,9 @@ public class BluetoothActivity extends AppCompatActivity implements
     @Override
     protected void onResume() {
         super.onResume();
-        //startBt();
+        if (!app.btOn) {
+            app.startBt();
+        }
     }
 
     @Override
@@ -112,7 +114,9 @@ public class BluetoothActivity extends AppCompatActivity implements
             }
             String btMessage = ssid.getText().toString() + "," + password.getText().toString() + "," + hostAddr;
 
-            ((MainApplication) getApplication()).deviceInterface.sendMessage(btMessage);
+
+            //app.setBaseUrl(hostAddr);
+            app.deviceInterface.sendMessage(btMessage);
         });
     }
 
