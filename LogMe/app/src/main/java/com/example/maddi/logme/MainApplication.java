@@ -7,28 +7,39 @@ import android.util.Log;
 import android.widget.Toast;
 
 import com.example.maddi.logme.API.ApiInterface;
+import com.example.maddi.logme.API.Models.ActivityType;
+import com.example.maddi.logme.API.Models.SensorData;
+import com.example.maddi.logme.API.Request.RawDataRequest;
+import com.example.maddi.logme.API.Response.SensorResponse;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
-import umich.cse.yctung.androidlibsvm.LibSVM;
 
 public class MainApplication extends Application {
     private ApiInterface apiInterface;
 
-    //public static String baseUrl = "http://10.1.40.214:6502/api/";
-    public static String baseUrl = "http://192.168.43.234:6502/api/";
+    public static String baseUrl = "http://10.1.40.57:6502/api/service/";
+    //public static String baseUrl = "http://192.168.43.234:6502/api/";
 
     private BluetoothManager btManager;
     public SimpleBluetoothDeviceInterface deviceInterface;
     private String deviceMacAddress = "B4:E6:2D:E9:53:B7";
-    private long time = 0;
-    public LibSVM svm;
-
+    private long connectionFailureTimer = 0;
+    private long timer = 0;
+    private List<SensorData> mDataList = new ArrayList<>();
+    public ActivityType currentActivity = null;
+    private MainApplication tempThis = this;
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -43,13 +54,16 @@ public class MainApplication extends Application {
         super.onCreate();
 
         startBt();
-
-        svm = new LibSVM();
     }
 
     private ApiInterface createApiInterface(String customBase) {
         apiInterface = new Retrofit.Builder().baseUrl(customBase != null ? customBase : baseUrl).addConverterFactory(GsonConverterFactory.create()).build().create(ApiInterface.class);
         return apiInterface;
+    }
+
+    public void setBaseUrl(String url) {
+        baseUrl = url;
+        apiInterface = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build().create(ApiInterface.class);
     }
 
     @SuppressLint("CheckResult")
@@ -88,13 +102,19 @@ public class MainApplication extends Application {
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
         String[] tokens = message.split(",");
-        float x = 0, y = 0, z = 0, temp = 0;
+        float ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0, temp = 0;
         int bpm = 0;
         try {
             if (tokens.length >= 3) {
-                x = Float.parseFloat(tokens[0]);
-                y = Float.parseFloat(tokens[1]);
-                z = Float.parseFloat(tokens[2]);
+                ax = Float.parseFloat(tokens[0]);
+                ay = Float.parseFloat(tokens[1]);
+                az = Float.parseFloat(tokens[2]);
+            }
+
+            if (tokens.length >= 6) {
+                gx = Float.parseFloat(tokens[3]);
+                gy = Float.parseFloat(tokens[4]);
+                gz = Float.parseFloat(tokens[5]);
             }
 
             if (tokens.length >= 8) {
@@ -105,19 +125,44 @@ public class MainApplication extends Application {
         catch (NumberFormatException ex) {
             Log.d("BT", "Cant parse");
         }
-        double acc = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+        mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
+        long current = System.currentTimeMillis() - timer;
+        timer = System.currentTimeMillis();
+        if (current > 1000) {
+            timer = 0;
+            makeCall();
+        }
+        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
+        mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
         SensorsActivity.updateProgress(bpm, (float) acc, temp);
-        acc = Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));
+        acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
         StepCounterActivity.updateAcceleration(acc);
         // Also send acceleration and gyroscope data to server and get prediction
     }
 
     private void onConnectionFailure(Throwable throwable) {
         Toast.makeText(this, "BT ERROR " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
-        long current = System.currentTimeMillis() - time;
-        time = System.currentTimeMillis();
+        long current = System.currentTimeMillis() - connectionFailureTimer;
+        connectionFailureTimer = System.currentTimeMillis();
         if (current > 1000) {
             startBt();
+            connectionFailureTimer = 0;
         }
+    }
+
+    private void makeCall() {
+        Call<String> request = apiInterface.sendData(new RawDataRequest(mDataList));
+
+        request.enqueue(new Callback<String>() {
+            @Override
+            public void onResponse(Call<String> call, Response<String> response) {
+                Toast.makeText(tempThis, response.body(), Toast.LENGTH_SHORT).show();
+            }
+
+            @Override
+            public void onFailure(Call<String> call, Throwable t) {
+                currentActivity = null;
+            }
+        });
     }
 }
