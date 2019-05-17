@@ -131,7 +131,7 @@ public class MainApplication extends Application {
         mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
         long current = System.currentTimeMillis() - timer;
         timer = System.currentTimeMillis();
-        if (current > 1000) {
+        if (current > 1000 && mDataList.size() > 10) {
             makeCall();
         }
         double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
