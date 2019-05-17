@@ -17,6 +17,7 @@ import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -128,17 +129,26 @@ public class MainApplication extends Application {
         catch (NumberFormatException ex) {
             Log.d("BT", "Cant parse");
         }
-        mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
-        long current = System.currentTimeMillis() - timer;
-        timer = System.currentTimeMillis();
-        if (current > 1000 && mDataList.size() > 10) {
-            makeCall();
-        }
-        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
-        mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
+
+        long current =  new Date().getTime();
+        long diff = current - timer;
+
+
+        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
         SensorsActivity.updateProgress(bpm, (float) acc, temp);
-        acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
         StepCounterActivity.updateAcceleration(acc);
+
+        if (diff > 3000 && mDataList.size() > 10)
+        {
+            makeCall();
+            mDataList.removeAll(mDataList);
+            timer = current;
+            //Toast.makeText(this, "SENT WIFI", Toast.LENGTH_SHORT).show();
+        }
+
+        if (mDataList.size() < 100) {
+            mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
+        }
     }
 
     private void onConnectionFailure(Throwable throwable) {
@@ -157,7 +167,6 @@ public class MainApplication extends Application {
             @Override
             public void onResponse(Call<PredictResult> call, Response<PredictResult> response) {
                 if (response.body() != null && response.body().activity != null) {
-                    Toast.makeText(tempThis, response.body().activity, Toast.LENGTH_SHORT).show();
                     currentActivity = ActivityType.values()[response.body().activity];
                 }
                 mDataList = new ArrayList<>();
@@ -165,7 +174,6 @@ public class MainApplication extends Application {
 
             @Override
             public void onFailure(Call<PredictResult> call, Throwable t) {
-                currentActivity = null;
                 mDataList = new ArrayList<>();
             }
         });

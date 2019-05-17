@@ -72,16 +72,16 @@ public class MainActivity extends AppCompatActivity implements
         activityList = new ArrayList<>();
 
         activityImageList.add(R.drawable.standing);
-        activityImageList.add(R.drawable.walk);
         activityImageList.add(R.drawable.run);
+        activityImageList.add(R.drawable.walk);
         activityImageList.add(R.drawable.sitting);
         activityImageList.add(R.drawable.climbing);
         activityImageList.add(R.drawable.climbdown);
         activityImageList.add(R.drawable.sleep);
 
         activityList.add("Standing");
-        activityList.add("Walking");
         activityList.add("Running");
+        activityList.add("Walking");
         activityList.add("Sitting");
         activityList.add("Climbing Up");
         activityList.add("Climbing Down");

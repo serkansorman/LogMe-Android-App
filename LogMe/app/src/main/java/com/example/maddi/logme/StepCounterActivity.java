@@ -18,6 +18,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 
 import com.hookedonplay.decoviewlib.DecoView;
@@ -41,14 +42,14 @@ public class StepCounterActivity extends AppCompatActivity implements
     public static double acceleration;
     public static boolean isChanged = false;
     private double totalDistance = 0;
-
+    private StepCounterActivity tmpthis = this;
 
 
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
             if(isChanged){
-                totalDistance += abs(acceleration) * 400;
+                totalDistance += abs(acceleration) * 0.02 * 0.02;
                 update();
 
                 isChanged = false;

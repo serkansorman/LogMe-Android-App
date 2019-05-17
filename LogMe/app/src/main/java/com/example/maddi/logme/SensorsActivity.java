@@ -49,7 +49,7 @@ public class SensorsActivity extends AppCompatActivity implements
     public static float temperature = 36.7f;
 
 
-
+    private boolean flag = true;
     private Handler mHandler = new Handler();
 
     Runnable runnable = new Runnable() {
@@ -157,8 +157,8 @@ public class SensorsActivity extends AppCompatActivity implements
     }
 
     public static void updateProgress(int pulse, float acce, float temp){
-
-        currentPulse = pulse;
+        if (pulse != 0)
+            currentPulse = pulse;
         acceleration = acce;
         temperature = temp;
 
@@ -166,11 +166,15 @@ public class SensorsActivity extends AppCompatActivity implements
     }
 
     private void updateAll(){
-
-        pulse_bar.setProgress((100 * (currentPulse)) / max_pulse);
-        pulse_bar.setText(String.valueOf(currentPulse));
-
-
+        if(currentPulse <= 200 && currentPulse >= 60){
+            pulse_bar.setProgress((100 * (currentPulse)) / max_pulse);
+            pulse_bar.setText(String.valueOf(currentPulse));
+            flag = false;
+        }
+        else if (flag){
+            pulse_bar.setProgress((100 * (0)) / max_pulse);
+            pulse_bar.setText(String.valueOf(0));
+        }
         acce_bar.setProgress((100 * (acceleration)) / max_acce);
         acce_bar.setText(String.format("%.2f",acceleration));
 
