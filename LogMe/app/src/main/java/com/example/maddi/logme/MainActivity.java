@@ -9,7 +9,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.animation.Animation;
@@ -19,43 +18,35 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Random;
 
-/**
- * Created by maddi on 4/20/2016.
- */
+
+
 public class MainActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    public static float stepMax = 0f;
-    public static float calorieMax = 0f;
-    int activityIndex = 0;
     MainApplication application;
 
-    ArrayList<Integer> activityImageList;
-    ArrayList<String> activityList;
-    ImageView status_image;
-    TextView status_text;
-
+    private ArrayList<Integer> activityImageList;
+    private ArrayList<String> activityList;
+    private ImageView status_image;
+    private TextView status_text;
 
     private Handler mHandler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
 
-
-
-            status_image.setImageResource(activityImageList.get(application.currentActivity.ordinal()));
-            status_text.setText(activityList.get(application.currentActivity.ordinal()));
-            //++activityIndex;
+            if(application.currentActivity != null){
+                status_image.setImageResource(activityImageList.get(application.currentActivity.ordinal()));
+                status_text.setText(activityList.get(application.currentActivity.ordinal()));
+            }
+            else{
+                status_image.setImageResource(activityImageList.get(0));
+                status_text.setText(activityList.get(0));
+            }
 
             mHandler.postDelayed(this, 2000);
         }
@@ -121,20 +112,6 @@ public class MainActivity extends AppCompatActivity implements
         drawerLayout.setDrawerListener(actionBarDrawerToggle);
 
         actionBarDrawerToggle.syncState();
-
-
-
-        // Setting Steps and Calories
-        stepMax = SetGoalActivity.mSeries;
-        if (stepMax == 0) {
-            //stepMax = ;
-        }
-        calorieMax = SetGoalActivity.mSeries1;
-        Log.d("SetGoal mseries", String.valueOf(SetGoalActivity.mSeries));
-        if (calorieMax == 0) {
-            //calorieMax = ;
-        }
-
 
         // Animation
         TranslateAnimation translation;
