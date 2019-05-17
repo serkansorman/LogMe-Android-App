@@ -44,8 +44,8 @@ public class MainActivity extends AppCompatActivity implements
                 status_text.setText(activityList.get(application.currentActivity.ordinal()));
             }
             else{
-                status_image.setImageResource(activityImageList.get(0));
-                status_text.setText(activityList.get(0));
+                status_image.setImageResource(android.R.color.transparent);
+                status_text.setText("Can not access status");
             }
 
             mHandler.postDelayed(this, 2000);
