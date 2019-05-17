@@ -21,22 +21,44 @@ import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 
+import static java.lang.Math.abs;
+
 public class ClimbCounterActivity extends AppCompatActivity implements
         NavigationView.OnNavigationItemSelectedListener {
 
     private DecoView mDecoView;
     private int mSeries1Index;
-    private final float mSeriesMax = 10f;
+    private final float mSeriesMax = 50f;
+    private final double averageStepSize = 0.8;
+    public static double acceleration;
+    public static boolean isChanged = false;
+    private double totalDistance = 0;
+    private MainApplication application;
+
+
     private Handler mHandler = new Handler();
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            update();
-            mHandler.postDelayed(this, 500);
+            if(isChanged && (application.currentActivity.ordinal() == 4 || application.currentActivity.ordinal() == 5 )){
+
+                totalDistance += abs(acceleration) * 400;
+                update();
+
+                isChanged = false;
+            }
+
+            mHandler.postDelayed(this, 20);
 
 
         }
     };
+
+    public static void updateAcceleration(double acce){
+
+        acceleration = acce;
+        isChanged = true;
+    }
 
 
 
@@ -48,7 +70,10 @@ public class ClimbCounterActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.stair_counter_layout);
-        step = 0;
+
+        application = (MainApplication) this.getApplication();
+
+
         mDecoView = findViewById(R.id.dynamicArcView_stair);
         createDataSeries1();
 
@@ -151,7 +176,7 @@ public class ClimbCounterActivity extends AppCompatActivity implements
 
     private void update() {
 
-        mDecoView.addEvent(new DecoEvent.Builder(step++).setIndex(mSeries1Index).setDuration(1000).build());
+        mDecoView.addEvent(new DecoEvent.Builder((int)(totalDistance / averageStepSize)).setIndex(mSeries1Index).setDuration(1000).build());
     }
 
     @Override
