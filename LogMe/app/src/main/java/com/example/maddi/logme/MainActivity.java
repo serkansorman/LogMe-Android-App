@@ -19,6 +19,11 @@ import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -33,6 +38,8 @@ public class MainActivity extends AppCompatActivity implements
     public static float stepMax = 0f;
     public static float calorieMax = 0f;
     int activityIndex = 0;
+    MainApplication application;
+
     ArrayList<Integer> activityImageList;
     ArrayList<String> activityList;
     ImageView status_image;
@@ -46,9 +53,9 @@ public class MainActivity extends AppCompatActivity implements
 
 
 
-            status_image.setImageResource(activityImageList.get(activityIndex % 5));
-            status_text.setText(activityList.get(activityIndex % 5));
-            ++activityIndex;
+            status_image.setImageResource(activityImageList.get(application.currentActivity.ordinal()));
+            status_text.setText(activityList.get(application.currentActivity.ordinal()));
+            //++activityIndex;
 
             mHandler.postDelayed(this, 2000);
         }
@@ -57,6 +64,8 @@ public class MainActivity extends AppCompatActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        application = (MainApplication) this.getApplication();
 
         mHandler.post(runnable);
 
@@ -71,16 +80,20 @@ public class MainActivity extends AppCompatActivity implements
         activityImageList = new ArrayList<>();
         activityList = new ArrayList<>();
 
+        activityImageList.add(R.drawable.standing);
         activityImageList.add(R.drawable.walk);
         activityImageList.add(R.drawable.run);
-        activityImageList.add(R.drawable.climbing);
         activityImageList.add(R.drawable.sitting);
+        activityImageList.add(R.drawable.climbing);
+        activityImageList.add(R.drawable.climbdown);
         activityImageList.add(R.drawable.sleep);
 
+        activityList.add("Standing");
         activityList.add("Walking");
         activityList.add("Running");
-        activityList.add("Climbing");
         activityList.add("Sitting");
+        activityList.add("Climbing Up");
+        activityList.add("Climbing Down");
         activityList.add("Sleeping");
 
 
