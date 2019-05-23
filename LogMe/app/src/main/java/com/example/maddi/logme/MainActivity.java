@@ -56,6 +56,13 @@ public class MainActivity extends AppCompatActivity implements
         }
     };
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        application.startBt();
+    }
+
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
