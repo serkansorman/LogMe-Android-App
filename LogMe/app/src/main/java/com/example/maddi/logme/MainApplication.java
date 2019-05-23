@@ -3,7 +3,6 @@ package com.example.maddi.logme;
 import android.annotation.SuppressLint;
 import android.app.Application;
 import android.content.Context;
-import android.hardware.Sensor;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -15,6 +14,7 @@ import com.example.maddi.logme.API.Response.PredictResult;
 import com.harrysoft.androidbluetoothserial.BluetoothManager;
 import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
+import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -41,6 +41,13 @@ public class MainApplication extends Application {
     public ActivityType currentActivity = null;
     private MainApplication tempThis = this;
     public boolean btOn = false;
+
+    private static final int VALUE_COUNT = 20;
+    private double[][] lastValues = new double[4][VALUE_COUNT];
+    private int valueCounter = 0;
+    private boolean standing = false, climbUp = false, climbDown = false, walking = false, running = false, sitting = false;
+    private boolean isFirst = true;
+
     /**
      * In practise you will use some kind of dependency injection pattern.
      */
@@ -62,6 +69,8 @@ public class MainApplication extends Application {
         return apiInterface;
     }
 
+
+
     public void setBaseUrl(String url) {
         baseUrl = url;
         apiInterface = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build().create(ApiInterface.class);
@@ -78,11 +87,14 @@ public class MainApplication extends Application {
 
         String deviceMacAddress = "B4:E6:2D:E9:53:B7";
         //noinspection ResultOfMethodCallIgnored
-        btManager.openSerialDevice(deviceMacAddress)
-                .subscribeOn(Schedulers.newThread())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(this::onConnected, this::onConnectionFailure);
-        btOn = true;
+        if (!btOn) {
+            btManager.openSerialDevice(deviceMacAddress)
+                    .subscribeOn(Schedulers.newThread())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(this::onConnected, this::onConnectionFailure);
+            btOn = true;
+        }
+
     }
 
     private void onConnected(BluetoothSerialDevice connectedDevice) {
@@ -106,23 +118,23 @@ public class MainApplication extends Application {
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
         String[] tokens = message.split(",");
-        float ax = 0, ay = 0, az = 0, gx = 0, gy = 0, gz = 0, temp = 0;
+        Double ax = 0.0, ay = 0.0, az = 0.0, gx = 0.0, gy = 0.0, gz = 0.0, temp = 0.0;
         int bpm = 0;
         try {
             if (tokens.length >= 3) {
-                ax = Float.parseFloat(tokens[0]);
-                ay = Float.parseFloat(tokens[1]);
-                az = Float.parseFloat(tokens[2]);
+                ax = Double.parseDouble(tokens[0]);
+                ay = Double.parseDouble(tokens[1]);
+                az = Double.parseDouble(tokens[2]);
             }
 
             if (tokens.length >= 6) {
-                gx = Float.parseFloat(tokens[3]);
-                gy = Float.parseFloat(tokens[4]);
-                gz = Float.parseFloat(tokens[5]);
+                gx = Double.parseDouble(tokens[3]);
+                gy = Double.parseDouble(tokens[4]);
+                gz = Double.parseDouble(tokens[5]);
             }
 
             if (tokens.length >= 8) {
-                temp = Float.parseFloat(tokens[6]);
+                temp = Double.parseDouble(tokens[6]);
                 bpm = Integer.parseInt(tokens[7]);
             }
         }
@@ -130,24 +142,96 @@ public class MainApplication extends Application {
             Log.d("BT", "Cant parse");
         }
 
-        long current =  new Date().getTime();
-        long diff = current - timer;
 
+        predict(ax, ay, az);
 
-        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
-        SensorsActivity.updateProgress(bpm, (float) acc, temp);
-        StepCounterActivity.updateAcceleration(acc);
+//        long current =  new Date().getTime();
+//        long diff = current - timer;
 
-        if (diff > 3000 && mDataList.size() > 10)
-        {
-            makeCall();
-            mDataList.removeAll(mDataList);
-            timer = current;
-            //Toast.makeText(this, "SENT WIFI", Toast.LENGTH_SHORT).show();
+//        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
+//        SensorsActivity.updateProgress(bpm, (float) acc, temp);
+//        StepCounterActivity.updateAcceleration(acc);
+
+//        if (diff > 3000 && mDataList.size() > 10)
+//        {
+//            makeCall();
+//            mDataList.removeAll(mDataList);
+//            timer = current;
+//            //Toast.makeText(this, "SENT WIFI", Toast.LENGTH_SHORT).show();
+//        }
+//
+//        if (mDataList.size() < 100) {
+//            mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
+//        }
+    }
+
+    private void predict(double x, double y, double z) {
+        boolean prevStanding = standing, prevClimbDown = climbDown, prevClimbUp = climbUp, prevWalking = walking, prevRunning = running, prevSitting = sitting;
+
+        if (valueCounter < VALUE_COUNT) {
+            lastValues[0][valueCounter] = x;
+            lastValues[1][valueCounter] = y;
+            lastValues[2][valueCounter] = z;
+            lastValues[3][valueCounter++] = x * x + z * z + y;
         }
+        else {
+            valueCounter = 0;
+            StandardDeviation sd = new StandardDeviation();
+            double avgFormula = 0, maxY = lastValues[3][0], minY = lastValues[3][0];
+            double avgZ = 0, maxZ = lastValues[2][0], minZ = lastValues[2][0];
 
-        if (mDataList.size() < 100) {
-            mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
+            for (int i = 0; i < VALUE_COUNT; i++) {
+                double itemZ = lastValues[2][i];
+                avgZ += itemZ;
+                if (itemZ > maxZ) maxZ = itemZ;
+                if (itemZ < minZ) minZ = itemZ;
+
+                double item = lastValues[3][i];
+                avgFormula += item;
+                if (item > maxY) maxY = item;
+                if (item < minY) minY = item;
+            }
+            avgZ = avgZ / VALUE_COUNT;
+            avgFormula = avgFormula / VALUE_COUNT;
+            double sdResult = sd.evaluate(lastValues[3]);
+            double sdX = sd.evaluate(lastValues[0]);
+            double sdY = sd.evaluate(lastValues[1]);
+            double sdZ = sd.evaluate(lastValues[2]);
+
+            boolean isStill = sdX < 1.3 && sdY < 1.5 && sdZ < 1.0;
+
+            standing = isStill && y < -7;
+            climbDown = maxY - minY > 12;
+            walking = avgZ > 1.8  && avgFormula > -4;
+            running = maxZ - minZ > 19;
+            sitting = isStill && !standing;
+
+            if (!standing && !climbDown && !walking && !running && !sitting) {
+                climbUp = true;
+            }
+
+            // Evaluate here with previous flags
+            if (running && (prevRunning || isFirst)) {
+                Toast.makeText(tempThis, "RUNNING", Toast.LENGTH_SHORT).show();
+            }
+            else if (standing && (prevStanding || isFirst)){
+                Toast.makeText(tempThis, "STANDING", Toast.LENGTH_SHORT).show();
+            }
+            else if (sitting && (prevSitting || isFirst)) {
+                Toast.makeText(tempThis, "SITTING", Toast.LENGTH_SHORT).show();
+            }
+            else if (walking && (prevWalking || isFirst)){
+                Toast.makeText(tempThis, "WALKING", Toast.LENGTH_SHORT).show();
+            }
+            else if (climbDown && (prevClimbDown || isFirst)) {
+                Toast.makeText(tempThis, "STAIRS DOWN", Toast.LENGTH_SHORT).show();
+            }
+            else if (climbUp && (prevClimbUp || isFirst)) {
+                Toast.makeText(tempThis, "STAIRS UP", Toast.LENGTH_SHORT).show();
+            }
+
+
+            isFirst = false;
         }
     }
 
