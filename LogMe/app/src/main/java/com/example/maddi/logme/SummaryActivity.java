@@ -2,7 +2,6 @@ package com.example.maddi.logme;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -13,7 +12,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnticipateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
@@ -42,11 +40,11 @@ public class SummaryActivity extends AppCompatActivity implements
     private int mSeries2Index;
     private int mSeries3Index;
 
-    public static int weekWalkStep = 24523;
-    public static int weekClimbStep = 3321;
-    public static int weekRunStep = 12232;
+    public static int weekWalkStep = 6123;
+    public static int weekClimbStep = 235;
+    public static int weekRunStep = 521;
 
-    private final float mSeriesMax = 50000;
+    private final float mSeriesMax = 10000;
     int flag = 0;
 
 
@@ -106,24 +104,24 @@ public class SummaryActivity extends AppCompatActivity implements
 
                 if(!item.toString().equals("Week")){
                     Toast.makeText(getApplicationContext(), item.toString(), Toast.LENGTH_SHORT).show();
-                    mDecoView.addEvent(new DecoEvent.Builder(4345)
+                    mDecoView.addEvent(new DecoEvent.Builder(1032)
                             .setIndex(mSeries1Index)
                             .build());
 
-                    mDecoView.addEvent(new DecoEvent.Builder(2453)
+                    mDecoView.addEvent(new DecoEvent.Builder(338)
                             .setIndex(mSeries2Index)
                             .build());
 
 
-                    mDecoView.addEvent(new DecoEvent.Builder(224)
+                    mDecoView.addEvent(new DecoEvent.Builder(235)
                             .setIndex(mSeries3Index)
                             .build());
 
                     final TextView textToGo = findViewById(R.id.textRemaining);
                     final TextView textPercentage = findViewById(R.id.textPercentage);
 
-                    textToGo.setText(String.format("%.0f Steps to goal", mSeriesMax - 7022));
-                    float percentFilled = 7022 / mSeriesMax;
+                    textToGo.setText(String.format("%.0f Steps to goal", mSeriesMax - 1032));
+                    float percentFilled = 1032 / mSeriesMax;
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
 
@@ -155,7 +153,7 @@ public class SummaryActivity extends AppCompatActivity implements
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
                 if(flag != 2){
-                    float percentFilled = (((weekWalkStep + weekClimbStep + weekRunStep) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
+                    float percentFilled = (((weekWalkStep) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
                     ++flag;
@@ -175,7 +173,7 @@ public class SummaryActivity extends AppCompatActivity implements
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
                 if(flag != 2) {
-                    textToGo.setText(String.format("%.0f Steps to goal", seriesItem.getMaxValue() - (weekWalkStep + weekClimbStep + weekRunStep)));
+                    textToGo.setText(String.format("%.0f Steps to goal", seriesItem.getMaxValue() - (weekWalkStep)));
                     ++flag;
                 }
             }
