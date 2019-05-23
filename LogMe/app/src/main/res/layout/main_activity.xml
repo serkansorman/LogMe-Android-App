@@ -84,6 +84,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginBottom="-101dp"
                 android:text="Current Status"
+                android:textStyle="bold|italic"
+                android:textColor="#375ced"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="35sp" />
 
@@ -96,6 +98,7 @@
                 android:layout_below="@id/status_imageview"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:textSize="30sp"
+                android:textStyle="bold|italic"
                 android:text="TextView" />
 
         </RelativeLayout>

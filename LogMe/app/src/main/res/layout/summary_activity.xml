@@ -15,6 +15,14 @@
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
 
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_below="@id/toolbar"
+            android:layout_above="@id/spinner"
+            android:layout_width="match_parent"
+            android:popupBackground="#dd81e464"
+            android:layout_height="wrap_content" />
+
         <android.support.v7.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
@@ -28,7 +36,7 @@
             android:id="@+id/main_deco"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_below="@id/toolbar"
+            android:layout_below="@id/spinner"
             android:layout_above="@+id/textActivity3">
 
             <TextView
@@ -76,7 +84,7 @@
             android:layout_height="100dp"
             android:layout_alignParentBottom="true"
             android:layout_centerHorizontal="true"
-            android:background="@drawable/circle_activity3"
+            android:background="@drawable/circle_activity2"
             android:padding="12dp"
             android:src="@drawable/climbing" />
 
@@ -87,7 +95,7 @@
             android:layout_alignParentEnd="true"
             android:layout_alignParentRight="true"
             android:layout_alignTop="@+id/imageActivity3"
-            android:background="@drawable/circle_activity2"
+            android:background="@drawable/circle_activity3"
             android:contentDescription="@string/fit_running"
             android:padding="12dp"
             android:src="@drawable/run" />
