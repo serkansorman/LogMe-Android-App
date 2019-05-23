@@ -203,7 +203,7 @@ public class SummaryActivity extends AppCompatActivity implements
     }
 
     private void createDataSeries2() {
-        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
+        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FF6699FF"))
                 .setRange(0, mSeriesMax, 0)
                 .setInitialVisibility(false)
                 .build();
@@ -226,7 +226,7 @@ public class SummaryActivity extends AppCompatActivity implements
     }
 
     private void createDataSeries3() {
-        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FF6699FF"))
+        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
                 .setRange(0, mSeriesMax, 0)
                 .setInitialVisibility(false)
                 .build();

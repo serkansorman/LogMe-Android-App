@@ -86,7 +86,7 @@
             android:layout_centerHorizontal="true"
             android:background="@drawable/circle_activity2"
             android:padding="12dp"
-            android:src="@drawable/climbing" />
+            android:src="@drawable/run" />
 
         <ImageView
             android:id="@+id/imageActivity2"
@@ -98,7 +98,7 @@
             android:background="@drawable/circle_activity3"
             android:contentDescription="@string/fit_running"
             android:padding="12dp"
-            android:src="@drawable/run" />
+            android:src="@drawable/climbing" />
 
         <TextView
             android:id="@+id/textActivity3"
