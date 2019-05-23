@@ -1,6 +1,7 @@
 package com.example.maddi.logme;
 
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.NavigationView;
@@ -42,10 +43,13 @@ public class MainActivity extends AppCompatActivity implements
             if(application.currentActivity != null){
                 status_image.setImageResource(activityImageList.get(application.currentActivity.ordinal()));
                 status_text.setText(activityList.get(application.currentActivity.ordinal()));
+                status_text.setTextColor(Color.parseColor("#FF69C254"));
             }
             else{
                 status_image.setImageResource(android.R.color.transparent);
-                status_text.setText("Can not access status");
+                status_text.setText("Waiting status...");
+                status_text.setTextColor(Color.parseColor("#FFDA181B"));
+
             }
 
             mHandler.postDelayed(this, 2000);
