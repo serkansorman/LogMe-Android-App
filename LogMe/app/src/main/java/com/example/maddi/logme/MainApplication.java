@@ -42,11 +42,16 @@ public class MainApplication extends Application {
     private MainApplication tempThis = this;
     public boolean btOn = false;
 
-    private static final int VALUE_COUNT = 20;
-    private double[][] lastValues = new double[4][VALUE_COUNT];
+    private static final int VALUE_COUNT = 15;
+    private double[][] lastValues = new double[5][VALUE_COUNT];
     private int valueCounter = 0;
     private boolean standing = false, climbUp = false, climbDown = false, walking = false, running = false, sitting = false;
     private boolean isFirst = true;
+    private double barAvg = 0;
+
+    public int stepCount = 0;
+    public int climbCount = 0;
+    private boolean isLow = true, isHigh = true;
 
     /**
      * In practise you will use some kind of dependency injection pattern.
@@ -68,7 +73,6 @@ public class MainApplication extends Application {
         apiInterface = new Retrofit.Builder().baseUrl(customBase != null ? customBase : baseUrl).addConverterFactory(GsonConverterFactory.create()).build().create(ApiInterface.class);
         return apiInterface;
     }
-
 
 
     public void setBaseUrl(String url) {
@@ -118,7 +122,7 @@ public class MainApplication extends Application {
     private void onMessageReceived(String message) {
         // We received a message! Handle it here.
         String[] tokens = message.split(",");
-        Double ax = 0.0, ay = 0.0, az = 0.0, gx = 0.0, gy = 0.0, gz = 0.0, temp = 0.0;
+        double ax = 0.0, ay = 0.0, az = 0.0, bar = 0.0, temp = 0.0;
         int bpm = 0;
         try {
             if (tokens.length >= 3) {
@@ -127,15 +131,13 @@ public class MainApplication extends Application {
                 az = Double.parseDouble(tokens[2]);
             }
 
-            if (tokens.length >= 6) {
-                gx = Double.parseDouble(tokens[3]);
-                gy = Double.parseDouble(tokens[4]);
-                gz = Double.parseDouble(tokens[5]);
+            if (tokens.length >= 4) {
+                bar = Double.parseDouble(tokens[3]);
             }
 
-            if (tokens.length >= 8) {
-                temp = Double.parseDouble(tokens[6]);
-                bpm = Integer.parseInt(tokens[7]);
+            if (tokens.length >= 6) {
+                temp = Double.parseDouble(tokens[4]);
+                bpm = Integer.parseInt(tokens[5]);
             }
         }
         catch (NumberFormatException ex) {
@@ -143,14 +145,13 @@ public class MainApplication extends Application {
         }
 
 
-        predict(ax, ay, az);
+        predict(ax, ay, az, bar);
 
 //        long current =  new Date().getTime();
 //        long diff = current - timer;
 
-//        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
-//        SensorsActivity.updateProgress(bpm, (float) acc, temp);
-//        StepCounterActivity.updateAcceleration(acc);
+        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
+        SensorsActivity.updateProgress(bpm, (float) acc, (float) temp);
 
 //        if (diff > 3000 && mDataList.size() > 10)
 //        {
@@ -165,32 +166,55 @@ public class MainApplication extends Application {
 //        }
     }
 
-    private void predict(double x, double y, double z) {
+    private void predict(double x, double y, double z, double avgBar) {
         boolean prevStanding = standing, prevClimbDown = climbDown, prevClimbUp = climbUp, prevWalking = walking, prevRunning = running, prevSitting = sitting;
 
         if (valueCounter < VALUE_COUNT) {
             lastValues[0][valueCounter] = x;
             lastValues[1][valueCounter] = y;
             lastValues[2][valueCounter] = z;
-            lastValues[3][valueCounter++] = x * x + z * z + y;
+            lastValues[3][valueCounter] = x * x + z * z + y;
+            lastValues[4][valueCounter++] = avgBar;
+
+            if (y < -12 && isLow) {
+                isHigh = true;
+                isLow = false;
+                stepCount++;
+                if (currentActivity == ActivityType.ClimbUp || currentActivity == ActivityType.ClimbDown) {
+                    climbCount++;
+                }
+                Toast.makeText(tempThis, "Step Count: " + stepCount, Toast.LENGTH_SHORT).show();
+            }
+            else if(y > -9 && isHigh) {
+                isLow = true;
+                isHigh = false;
+            }
         }
         else {
             valueCounter = 0;
             StandardDeviation sd = new StandardDeviation();
             double avgFormula = 0, maxY = lastValues[3][0], minY = lastValues[3][0];
             double avgZ = 0, maxZ = lastValues[2][0], minZ = lastValues[2][0];
-
+            double avgY = 0;
+            double prevBar = barAvg;
+            barAvg = 0;
             for (int i = 0; i < VALUE_COUNT; i++) {
                 double itemZ = lastValues[2][i];
                 avgZ += itemZ;
                 if (itemZ > maxZ) maxZ = itemZ;
                 if (itemZ < minZ) minZ = itemZ;
 
+                avgY += lastValues[1][i];
+
                 double item = lastValues[3][i];
                 avgFormula += item;
                 if (item > maxY) maxY = item;
                 if (item < minY) minY = item;
+
+                barAvg += lastValues[4][i];
             }
+            barAvg = barAvg / VALUE_COUNT;
+            avgY = avgY / VALUE_COUNT;
             avgZ = avgZ / VALUE_COUNT;
             avgFormula = avgFormula / VALUE_COUNT;
             double sdResult = sd.evaluate(lastValues[3]);
@@ -199,37 +223,40 @@ public class MainApplication extends Application {
             double sdZ = sd.evaluate(lastValues[2]);
 
             boolean isStill = sdX < 1.3 && sdY < 1.5 && sdZ < 1.0;
-
-            standing = isStill && y < -7;
-            climbDown = maxY - minY > 12;
+            standing = isStill && avgY < -7;
+            climbDown = prevBar - barAvg >= 0.25 && !isFirst;
+            climbUp = barAvg - prevBar >= 0.2 && !isFirst;
             walking = avgZ > 1.8  && avgFormula > -4;
             running = maxZ - minZ > 19;
             sitting = isStill && !standing;
 
-            if (!standing && !climbDown && !walking && !running && !sitting) {
-                climbUp = true;
-            }
-
             // Evaluate here with previous flags
             if (running && (prevRunning || isFirst)) {
                 Toast.makeText(tempThis, "RUNNING", Toast.LENGTH_SHORT).show();
+                currentActivity = ActivityType.Running;
             }
             else if (standing && (prevStanding || isFirst)){
                 Toast.makeText(tempThis, "STANDING", Toast.LENGTH_SHORT).show();
+                currentActivity = ActivityType.Standing;
             }
             else if (sitting && (prevSitting || isFirst)) {
                 Toast.makeText(tempThis, "SITTING", Toast.LENGTH_SHORT).show();
+                currentActivity = ActivityType.Sitting;
             }
             else if (walking && (prevWalking || isFirst)){
-                Toast.makeText(tempThis, "WALKING", Toast.LENGTH_SHORT).show();
+                if (climbDown) {
+                    Toast.makeText(tempThis, "STAIRS DOWN", Toast.LENGTH_SHORT).show();
+                    currentActivity = ActivityType.ClimbDown;
+                }
+                else if (climbUp) {
+                    Toast.makeText(tempThis, "STAIRS UP", Toast.LENGTH_SHORT).show();
+                    currentActivity = ActivityType.ClimbUp;
+                }
+                else {
+                    Toast.makeText(tempThis, "WALKING", Toast.LENGTH_SHORT).show();
+                    currentActivity = ActivityType.Walking;
+                }
             }
-            else if (climbDown && (prevClimbDown || isFirst)) {
-                Toast.makeText(tempThis, "STAIRS DOWN", Toast.LENGTH_SHORT).show();
-            }
-            else if (climbUp && (prevClimbUp || isFirst)) {
-                Toast.makeText(tempThis, "STAIRS UP", Toast.LENGTH_SHORT).show();
-            }
-
 
             isFirst = false;
         }
@@ -241,7 +268,6 @@ public class MainApplication extends Application {
         long current = System.currentTimeMillis() - connectionFailureTimer;
         connectionFailureTimer = System.currentTimeMillis();
         btOn = false;
-
     }
 
     private void makeCall() {

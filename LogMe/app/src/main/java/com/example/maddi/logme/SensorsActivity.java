@@ -159,6 +159,9 @@ public class SensorsActivity extends AppCompatActivity implements
     public static void updateProgress(int pulse, float acce, float temp){
         if (pulse != 0)
             currentPulse = pulse;
+        else {
+            // Waiting
+        }
         acceleration = acce;
         temperature = temp;
 

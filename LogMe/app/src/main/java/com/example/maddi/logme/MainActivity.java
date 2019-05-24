@@ -52,7 +52,7 @@ public class MainActivity extends AppCompatActivity implements
 
             }
 
-            mHandler.postDelayed(this, 2000);
+            mHandler.postDelayed(this, 500);
         }
     };
 
@@ -61,6 +61,7 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
 
         application.startBt();
+        application.stepCount = 0;
     }
 
     protected void onCreate(Bundle savedInstanceState) {
@@ -88,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements
         activityImageList.add(R.drawable.sitting);
         activityImageList.add(R.drawable.climbing);
         activityImageList.add(R.drawable.climbdown);
-        activityImageList.add(R.drawable.sleep);
 
         activityList.add("Standing");
         activityList.add("Running");
@@ -96,7 +96,6 @@ public class MainActivity extends AppCompatActivity implements
         activityList.add("Sitting");
         activityList.add("Climbing Up");
         activityList.add("Climbing Down");
-        activityList.add("Sleeping");
 
 
 
