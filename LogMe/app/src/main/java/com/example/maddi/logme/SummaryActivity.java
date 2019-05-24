@@ -2,7 +2,6 @@ package com.example.maddi.logme;
 
 import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -11,19 +10,29 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.animation.AnticipateInterpolator;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maddi.logme.API.Models.ActivityCounter;
+import com.example.maddi.logme.API.Response.ActivityCounterResponse;
+import com.example.maddi.logme.API.Response.SensorResponse;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class SummaryActivity extends AppCompatActivity implements
@@ -42,11 +51,13 @@ public class SummaryActivity extends AppCompatActivity implements
     private int mSeries2Index;
     private int mSeries3Index;
 
-    public static int weekWalkStep = 24523;
-    public static int weekClimbStep = 3321;
-    public static int weekRunStep = 12232;
+    public static int weekWalkStep = 6123;
+    public static int weekClimbStep = 235;
+    public static int weekRunStep = 521;
 
-    private final float mSeriesMax = 50000;
+    private final float mSeriesMax = 10000;
+    List<ActivityCounter> activityCounters;
+
     int flag = 0;
 
 
@@ -90,7 +101,7 @@ public class SummaryActivity extends AppCompatActivity implements
 
         // Setup events to be fired on a schedule
         createEvents();
-
+        makeCall();
 
         Spinner spin =  findViewById(R.id.spinner);
 
@@ -106,24 +117,24 @@ public class SummaryActivity extends AppCompatActivity implements
 
                 if(!item.toString().equals("Week")){
                     Toast.makeText(getApplicationContext(), item.toString(), Toast.LENGTH_SHORT).show();
-                    mDecoView.addEvent(new DecoEvent.Builder(4345)
+                    mDecoView.addEvent(new DecoEvent.Builder(1032)
                             .setIndex(mSeries1Index)
                             .build());
 
-                    mDecoView.addEvent(new DecoEvent.Builder(2453)
+                    mDecoView.addEvent(new DecoEvent.Builder(338)
                             .setIndex(mSeries2Index)
                             .build());
 
 
-                    mDecoView.addEvent(new DecoEvent.Builder(224)
+                    mDecoView.addEvent(new DecoEvent.Builder(235)
                             .setIndex(mSeries3Index)
                             .build());
 
                     final TextView textToGo = findViewById(R.id.textRemaining);
                     final TextView textPercentage = findViewById(R.id.textPercentage);
 
-                    textToGo.setText(String.format("%.0f Steps to goal", mSeriesMax - 7022));
-                    float percentFilled = 7022 / mSeriesMax;
+                    textToGo.setText(String.format("%.0f Steps to goal", mSeriesMax - 1032));
+                    float percentFilled = 1032 / mSeriesMax;
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
 
@@ -155,7 +166,7 @@ public class SummaryActivity extends AppCompatActivity implements
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
                 if(flag != 2){
-                    float percentFilled = (((weekWalkStep + weekClimbStep + weekRunStep) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
+                    float percentFilled = (((weekWalkStep) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
                     ++flag;
@@ -175,7 +186,7 @@ public class SummaryActivity extends AppCompatActivity implements
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
                 if(flag != 2) {
-                    textToGo.setText(String.format("%.0f Steps to goal", seriesItem.getMaxValue() - (weekWalkStep + weekClimbStep + weekRunStep)));
+                    textToGo.setText(String.format("%.0f Steps to goal", seriesItem.getMaxValue() - (weekWalkStep)));
                     ++flag;
                 }
             }
@@ -203,7 +214,7 @@ public class SummaryActivity extends AppCompatActivity implements
     }
 
     private void createDataSeries2() {
-        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
+        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FF6699FF"))
                 .setRange(0, mSeriesMax, 0)
                 .setInitialVisibility(false)
                 .build();
@@ -226,7 +237,7 @@ public class SummaryActivity extends AppCompatActivity implements
     }
 
     private void createDataSeries3() {
-        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FF6699FF"))
+        final SeriesItem seriesItem = new SeriesItem.Builder(Color.parseColor("#FFFF4444"))
                 .setRange(0, mSeriesMax, 0)
                 .setInitialVisibility(false)
                 .build();
@@ -341,6 +352,33 @@ public class SummaryActivity extends AppCompatActivity implements
         ((TextView) findViewById(R.id.textActivity3)).setText("");
         ((TextView) findViewById(R.id.textPercentage)).setText("");
         ((TextView) findViewById(R.id.textRemaining)).setText("");
+    }
+
+
+    private void makeCall() {
+        Call<ActivityCounterResponse> request = MainApplication.getApiInterface(this, null).getLineChartData();
+
+        request.enqueue(new Callback<ActivityCounterResponse>() {
+            @Override
+            public void onResponse(Call<ActivityCounterResponse> call, Response<ActivityCounterResponse> response) {
+                int code = response.code();
+                ActivityCounterResponse res = response.body();
+
+                activityCounters = res.data;
+
+
+                Toast.makeText(getApplicationContext(), activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
+
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ActivityCounterResponse> call, Throwable t) {
+                //wifi_text.setText("SERVER ERROR");
+            }
+        });
     }
 
     @Override
