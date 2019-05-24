@@ -10,7 +10,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -21,13 +20,12 @@ import android.widget.Toast;
 
 import com.example.maddi.logme.API.Models.ActivityCounter;
 import com.example.maddi.logme.API.Response.ActivityCounterResponse;
-import com.example.maddi.logme.API.Response.SensorResponse;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
 
-import java.util.ArrayList;
+
 import java.util.List;
 
 import retrofit2.Call;
@@ -42,7 +40,7 @@ public class SummaryActivity extends AppCompatActivity implements
     private DecoView mDecoView;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    private static final String[] days = { "Week","Monday", "Tuesday", "Wednesday", "Thursday","Friday","Saturday","Sunday"};
+    private static final String[] days = { "Week","Saturday","Sunday","Monday", "Tuesday", "Wednesday", "Thursday","Friday"};
     private ArrayAdapter<String> dataAdapterForDays;
 
 
@@ -51,11 +49,13 @@ public class SummaryActivity extends AppCompatActivity implements
     private int mSeries2Index;
     private int mSeries3Index;
 
-    public static int weekWalkStep = 6123;
-    public static int weekClimbStep = 235;
-    public static int weekRunStep = 521;
+    private int walkCount = 0;
+    private int runCount = 0;
+    private int climbCount = 0;
 
-    private final float mSeriesMax = 10000;
+    private float dailyRun = 0,dailyClimb = 0,dailyWalk = 0;
+
+    private float mSeriesMax = 10000;
     List<ActivityCounter> activityCounters;
 
     int flag = 0;
@@ -92,16 +92,10 @@ public class SummaryActivity extends AppCompatActivity implements
         actionBarDrawerToggle.syncState();
 
         mDecoView = findViewById(R.id.dynamicArcView);
-
-        // Create required data series on the DecoView
-        createBackSeries();
-        createDataSeries1();
-        createDataSeries2();
-        createDataSeries3();
-
-        // Setup events to be fired on a schedule
-        createEvents();
         makeCall();
+
+
+
 
         Spinner spin =  findViewById(R.id.spinner);
 
@@ -115,30 +109,48 @@ public class SummaryActivity extends AppCompatActivity implements
             public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
                 Object item = parent.getItemAtPosition(pos);
 
-                if(!item.toString().equals("Week")){
+
+                if(pos != 0){
+                    dailyClimb = activityCounters.get(pos - 1).up_count + activityCounters.get(pos - 1).down_count;
+                    dailyRun = activityCounters.get(pos - 1).run_count;
+                    dailyWalk = activityCounters.get(pos - 1).walk_count;
+
+                }
+                else{
+
+                    dailyWalk = walkCount;
+                    dailyClimb = climbCount;
+                    dailyRun = runCount;
+
+                }
+
+                if((dailyWalk + dailyClimb + dailyRun) != 0){
                     Toast.makeText(getApplicationContext(), item.toString(), Toast.LENGTH_SHORT).show();
-                    mDecoView.addEvent(new DecoEvent.Builder(1032)
+                    mDecoView.addEvent(new DecoEvent.Builder(dailyWalk)
                             .setIndex(mSeries1Index)
                             .build());
 
-                    mDecoView.addEvent(new DecoEvent.Builder(338)
+                    mDecoView.addEvent(new DecoEvent.Builder(dailyClimb)
                             .setIndex(mSeries2Index)
                             .build());
 
 
-                    mDecoView.addEvent(new DecoEvent.Builder(235)
+                    mDecoView.addEvent(new DecoEvent.Builder(dailyRun)
                             .setIndex(mSeries3Index)
                             .build());
 
-                    final TextView textToGo = findViewById(R.id.textRemaining);
+
                     final TextView textPercentage = findViewById(R.id.textPercentage);
 
-                    textToGo.setText(String.format("%.0f Steps to goal", mSeriesMax - 1032));
-                    float percentFilled = 1032 / mSeriesMax;
+
+                    float percentFilled = (dailyClimb + dailyRun + dailyWalk) / mSeriesMax;
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
 
+
                 }
+
+
 
             }
             public void onNothingSelected(AdapterView<?> parent) {
@@ -162,33 +174,31 @@ public class SummaryActivity extends AppCompatActivity implements
                 .build();
 
         final TextView textPercentage = findViewById(R.id.textPercentage);
+        final TextView textToGo = findViewById(R.id.textRemaining);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                if(flag != 2){
-                    float percentFilled = (((weekWalkStep) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
-                    textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
-                    ++flag;
-                }
 
             }
 
             @Override
             public void onSeriesItemDisplayProgress(float percentComplete) {
-
+                if(flag != 1){
+                    float percentFilled = (((walkCount + runCount + climbCount) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
+                    textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
+                    textToGo.setText("of Week");
+                    ++flag;
+                }
             }
         });
 
 
-        final TextView textToGo = findViewById(R.id.textRemaining);
+
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                if(flag != 2) {
-                    textToGo.setText(String.format("%.0f Steps to goal", seriesItem.getMaxValue() - (weekWalkStep)));
-                    ++flag;
-                }
+
             }
 
             @Override
@@ -201,7 +211,7 @@ public class SummaryActivity extends AppCompatActivity implements
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                textActivity1.setText(String.format("%.0f Step", currentPosition));
+                textActivity1.setText(String.format("%.2f%%", 100 * dailyWalk / (dailyWalk + dailyClimb + dailyRun)));
             }
 
             @Override
@@ -224,7 +234,7 @@ public class SummaryActivity extends AppCompatActivity implements
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                textActivity2.setText(String.format("%.0f Step", currentPosition));
+                textActivity2.setText(String.format("%.2f%%", 100 * dailyClimb / (dailyWalk + dailyClimb + dailyRun)));
             }
 
             @Override
@@ -247,7 +257,7 @@ public class SummaryActivity extends AppCompatActivity implements
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                textActivity3.setText(String.format("%.0f Step", currentPosition));
+                textActivity3.setText(String.format("%.2f%%", 100 * dailyRun / (dailyWalk + dailyClimb + dailyRun)));
             }
 
             @Override
@@ -274,7 +284,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setDelay(1000)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(weekWalkStep)
+        mDecoView.addEvent(new DecoEvent.Builder(walkCount)
                 .setIndex(mSeries1Index)
                 .setDelay(1500)
                 .build());
@@ -286,7 +296,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setDelay(2000)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(weekRunStep)
+        mDecoView.addEvent(new DecoEvent.Builder(runCount)
                 .setIndex(mSeries2Index)
                 .setDelay(2500)
                 .build());
@@ -298,60 +308,21 @@ public class SummaryActivity extends AppCompatActivity implements
                 .setDelay(3000)
                 .build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(weekClimbStep)
+        mDecoView.addEvent(new DecoEvent.Builder(climbCount)
                 .setIndex(mSeries3Index)
                 .setDelay(3500)
                 .build());
-        /*
-        mDecoView.addEvent(new DecoEvent.Builder(0).setIndex(mSeries3Index).setDelay(9000).build());
 
-        mDecoView.addEvent(new DecoEvent.Builder(0).setIndex(mSeries2Index).setDelay(9000).build());
-    */
-        /*mDecoView.addEvent(new DecoEvent.Builder(0)
-                .setIndex(mSeries1Index)
-                .setDelay(9000)
-                .setDuration(1000)
-                .setInterpolator(new AnticipateInterpolator())
-                .setListener(new DecoEvent.ExecuteEventListener() {
-                    @Override
-                    public void onEventStart(DecoEvent decoEvent) {
-
-                    }
-
-                    @Override
-                    public void onEventEnd(DecoEvent decoEvent) {
-
-                    }
-                })
-                .build());*/
-
-        /*mDecoView.addEvent(new DecoEvent.Builder(DecoDrawEffect.EffectType.EFFECT_SPIRAL_EXPLODE)
-                .setIndex(mSeries1Index)
-                .setDelay(14500)
-                .setDuration(1500)
-                .setDisplayText("GOAL!")
-                .setListener(new DecoEvent.ExecuteEventListener() {
-                    @Override
-                    public void onEventStart(DecoEvent decoEvent) {
-
-                    }
-
-                    @Override
-                    public void onEventEnd(DecoEvent decoEvent) {
-
-                    }
-                })
-                .build());*/
-
-        //resetText();
     }
 
-    private void resetText() {
-        ((TextView) findViewById(R.id.textActivity1)).setText("");
-        ((TextView) findViewById(R.id.textActivity2)).setText("");
-        ((TextView) findViewById(R.id.textActivity3)).setText("");
-        ((TextView) findViewById(R.id.textPercentage)).setText("");
-        ((TextView) findViewById(R.id.textRemaining)).setText("");
+
+
+    private void setCounters(){
+        for(ActivityCounter activityCounter : activityCounters){
+            walkCount += activityCounter.walk_count;
+            runCount += activityCounter.run_count;
+            climbCount += (activityCounter.up_count + activityCounter.down_count);
+        }
     }
 
 
@@ -366,8 +337,25 @@ public class SummaryActivity extends AppCompatActivity implements
 
                 activityCounters = res.data;
 
+                setCounters();
 
-                Toast.makeText(getApplicationContext(), "" + activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
+                mSeriesMax = walkCount + climbCount + runCount;
+
+                dailyWalk = walkCount;
+                dailyClimb = climbCount;
+                dailyRun = runCount;
+
+                // Create required data series on the DecoView
+                createBackSeries();
+                createDataSeries1();
+                createDataSeries2();
+                createDataSeries3();
+
+                // Setup events to be fired on a schedule
+                createEvents();
+
+
+               // Toast.makeText(getApplicationContext(), "" + activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
 
 
 
