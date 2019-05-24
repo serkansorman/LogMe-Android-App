@@ -286,7 +286,7 @@ public class MainApplication extends Application {
         long current = System.currentTimeMillis() - connectionFailureTimer;
         connectionFailureTimer = System.currentTimeMillis();
         btOn = false;
-        makeCall(15.0, 81);
+        //makeCall(15.0, 81);
     }
 
     private void makeCall(double temp, int pulse) {
