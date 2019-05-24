@@ -180,7 +180,7 @@ public class StepCounterActivity extends AppCompatActivity implements
 
     private void update() {
 
-        mDecoView.addEvent(new DecoEvent.Builder(stepCounter).setIndex(mSeries1Index).setDuration(1000).build());
+        mDecoView.addEvent(new DecoEvent.Builder(stepCounter).setIndex(mSeries1Index).setDuration(100).build());
     }
 
 

@@ -27,9 +27,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainApplication extends Application {
     private ApiInterface apiInterface;
 
-    //public static String baseUrl = "http://192.168.43.172:6503/api/";
+    public static String baseUrl = "http://192.168.43.172:6502/api/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
-    public static String baseUrl = "http://10.1.40.70:6502/api/";
+    //public static String baseUrl = "http://10.1.40.70:6502/api/";
 
     public SimpleBluetoothDeviceInterface deviceInterface;
     private long connectionFailureTimer = 0;
@@ -159,7 +159,7 @@ public class MainApplication extends Application {
             if (currentActivity == ActivityType.ClimbUp || currentActivity == ActivityType.ClimbDown) {
                 climbCount++;
             }
-            Toast.makeText(tempThis, "Step Count: " + stepCount, Toast.LENGTH_SHORT).show();
+            //Toast.makeText(tempThis, "Step Count: " + stepCount, Toast.LENGTH_SHORT).show();
         }
         else if(y > -9 && isHigh) {
             isLow = true;
@@ -275,7 +275,7 @@ public class MainApplication extends Application {
                 }
             }
 
-            if (currentActivity != null) makeCall(temp, pulse);
+            makeCall(temp, pulse);
             isFirst = false;
         }
     }

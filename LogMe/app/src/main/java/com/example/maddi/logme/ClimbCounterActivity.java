@@ -162,7 +162,7 @@ public class ClimbCounterActivity extends AppCompatActivity implements
 
     private void update() {
 
-        mDecoView.addEvent(new DecoEvent.Builder(climbCounter).setIndex(mSeries1Index).setDuration(1000).build());
+        mDecoView.addEvent(new DecoEvent.Builder(climbCounter).setIndex(mSeries1Index).setDuration(100).build());
     }
 
     @Override
