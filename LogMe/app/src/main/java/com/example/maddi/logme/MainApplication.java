@@ -31,8 +31,9 @@ import retrofit2.converter.gson.GsonConverterFactory;
 public class MainApplication extends Application {
     private ApiInterface apiInterface;
 
-    public static String baseUrl = "http://192.168.43.172:6503/api/";
+    //public static String baseUrl = "http://192.168.43.172:6503/api/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
+    public static String baseUrl = "http://10.1.40.70:6503/api/";
 
     public SimpleBluetoothDeviceInterface deviceInterface;
     private long connectionFailureTimer = 0;

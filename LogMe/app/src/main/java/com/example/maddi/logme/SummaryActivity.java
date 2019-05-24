@@ -10,6 +10,7 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
@@ -18,10 +19,20 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.maddi.logme.API.Models.ActivityCounter;
+import com.example.maddi.logme.API.Response.ActivityCounterResponse;
+import com.example.maddi.logme.API.Response.SensorResponse;
 import com.hookedonplay.decoviewlib.DecoView;
 import com.hookedonplay.decoviewlib.charts.DecoDrawEffect;
 import com.hookedonplay.decoviewlib.charts.SeriesItem;
 import com.hookedonplay.decoviewlib.events.DecoEvent;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 
 public class SummaryActivity extends AppCompatActivity implements
@@ -45,6 +56,8 @@ public class SummaryActivity extends AppCompatActivity implements
     public static int weekRunStep = 521;
 
     private final float mSeriesMax = 10000;
+    List<ActivityCounter> activityCounters;
+
     int flag = 0;
 
 
@@ -88,7 +101,7 @@ public class SummaryActivity extends AppCompatActivity implements
 
         // Setup events to be fired on a schedule
         createEvents();
-
+        makeCall();
 
         Spinner spin =  findViewById(R.id.spinner);
 
@@ -339,6 +352,33 @@ public class SummaryActivity extends AppCompatActivity implements
         ((TextView) findViewById(R.id.textActivity3)).setText("");
         ((TextView) findViewById(R.id.textPercentage)).setText("");
         ((TextView) findViewById(R.id.textRemaining)).setText("");
+    }
+
+
+    private void makeCall() {
+        Call<ActivityCounterResponse> request = MainApplication.getApiInterface(this, null).getLineChartData();
+
+        request.enqueue(new Callback<ActivityCounterResponse>() {
+            @Override
+            public void onResponse(Call<ActivityCounterResponse> call, Response<ActivityCounterResponse> response) {
+                int code = response.code();
+                ActivityCounterResponse res = response.body();
+
+                activityCounters = res.data;
+
+
+                Toast.makeText(getApplicationContext(), activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
+
+
+
+
+            }
+
+            @Override
+            public void onFailure(Call<ActivityCounterResponse> call, Throwable t) {
+                //wifi_text.setText("SERVER ERROR");
+            }
+        });
     }
 
     @Override
