@@ -5,27 +5,27 @@ import com.google.gson.annotations.SerializedName;
 
 public class ActivityCounter {
 
-    @SerializedName("down_count")
+    @SerializedName("downstairs")
     @Expose
     public int down_count;
 
-    @SerializedName("up_count")
+    @SerializedName("upstairs")
     @Expose
     public int up_count;
 
-    @SerializedName("run_count")
+    @SerializedName("running")
     @Expose
     public int run_count;
 
-    @SerializedName("walk_count")
+    @SerializedName("walking")
     @Expose
     public int walk_count;
 
-    @SerializedName("sit_count")
+    @SerializedName("sitting")
     @Expose
     public int sit_count;
 
-    @SerializedName("stand_count")
+    @SerializedName("standing")
     @Expose
     public int stand_count;
 }

@@ -367,7 +367,7 @@ public class SummaryActivity extends AppCompatActivity implements
                 activityCounters = res.data;
 
 
-                Toast.makeText(getApplicationContext(), activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "" + activityCounters.get(0).run_count, Toast.LENGTH_SHORT).show();
 
 
 
