@@ -61,7 +61,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onResume();
 
         application.startBt();
-        application.stepCount = 0;
     }
 
     protected void onCreate(Bundle savedInstanceState) {
