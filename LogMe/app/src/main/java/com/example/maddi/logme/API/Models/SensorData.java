@@ -5,10 +5,12 @@ import com.google.gson.annotations.SerializedName;
 
 public class SensorData {
 
-    public SensorData(int act, double tmp, int bpm) {
+    public SensorData(int act, double tmp, int bpm, int stp, int stairCount) {
         this.activity = act;
         this.temp = tmp;
         this.pulse = bpm;
+        this.step = stp;
+        this.stairs = stairCount;
     }
 
     @SerializedName("activity")
@@ -22,4 +24,12 @@ public class SensorData {
     @SerializedName("pulse")
     @Expose
     public int pulse;
+
+    @SerializedName("step")
+    @Expose
+    public int step;
+
+    @SerializedName("stairs")
+    @Expose
+    public int stairs;
 }

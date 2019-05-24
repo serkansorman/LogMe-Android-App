@@ -16,10 +16,6 @@ import com.harrysoft.androidbluetoothserial.BluetoothSerialDevice;
 import com.harrysoft.androidbluetoothserial.SimpleBluetoothDeviceInterface;
 import org.apache.commons.math3.stat.descriptive.moment.StandardDeviation;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import retrofit2.Call;
@@ -48,8 +44,9 @@ public class MainApplication extends Application {
     private boolean standing = false, climbUp = false, climbDown = false, walking = false, running = false, sitting = false;
     private boolean isFirst = true;
     private double barAvg = 0, prevBarAvg = 0;
-
+    private int sentStep = 0;
     public int stepCount = 0;
+    private int sentStairs = 0;
     public int climbCount = 0;
     private boolean isLow = true, isHigh = true, stepped = false;
 
@@ -293,8 +290,9 @@ public class MainApplication extends Application {
     }
 
     private void makeCall(double temp, int pulse) {
-        Call<PredictResult> request = apiInterface.sendData(new RawDataRequest(new SensorData(currentActivity == null ? -1 : currentActivity.ordinal(), temp, pulse)));
-
+        Call<PredictResult> request = apiInterface.sendData(new RawDataRequest(new SensorData(currentActivity == null ? -1 : currentActivity.ordinal(), temp, pulse, stepCount - sentStep, climbCount - sentStairs)));
+        sentStep = stepCount;
+        sentStairs = climbCount;
         request.enqueue(new Callback<PredictResult>() {
             @Override
             public void onResponse(Call<PredictResult> call, Response<PredictResult> response) {
