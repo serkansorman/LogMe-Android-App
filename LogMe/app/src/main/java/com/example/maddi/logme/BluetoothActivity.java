@@ -107,7 +107,11 @@ public class BluetoothActivity extends AppCompatActivity implements
                 if (hostAddr.charAt(host.length() - 1) != '/') {
                     hostAddr += '/';
                 }
-                app.setBaseUrl(hostAddr);
+                try {
+                    app.setBaseUrl(hostAddr);
+                } catch (Exception ex) {
+                    Log.e("WIFI", "Url error");
+                }
             }
             if (TextUtils.isEmpty(password.getText())) {
                 password.setError("Password Required!!!");
