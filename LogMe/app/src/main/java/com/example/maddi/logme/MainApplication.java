@@ -33,7 +33,7 @@ public class MainApplication extends Application {
 
     //public static String baseUrl = "http://192.168.43.172:6503/api/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
-    public static String baseUrl = "http://10.1.40.70:6503/api/";
+    public static String baseUrl = "http://10.1.40.70:6502/api/";
 
     public SimpleBluetoothDeviceInterface deviceInterface;
     private long connectionFailureTimer = 0;
