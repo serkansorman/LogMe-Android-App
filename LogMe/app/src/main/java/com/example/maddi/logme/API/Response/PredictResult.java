@@ -6,5 +6,5 @@ import com.google.gson.annotations.SerializedName;
 public class PredictResult {
     @SerializedName("message")
     @Expose
-    public Integer activity;
+    public String activity;
 }

@@ -33,26 +33,25 @@ public class MainApplication extends Application {
 
     //public static String baseUrl = "http://192.168.43.172:6503/api/";
     //public static String baseUrl = "http://192.168.43.234:6502/api/";
-    public static String baseUrl = "http://10.1.40.70:6503/api/";
+    public static String baseUrl = "http://10.1.40.70:6502/api/";
 
     public SimpleBluetoothDeviceInterface deviceInterface;
     private long connectionFailureTimer = 0;
-    private long timer = 0;
-    private List<SensorData> mDataList = new ArrayList<>();
     public ActivityType currentActivity = null;
     private MainApplication tempThis = this;
     public boolean btOn = false;
 
-    private static final int VALUE_COUNT = 15;
+    private static final int VALUE_COUNT = 10;
     private double[][] lastValues = new double[5][VALUE_COUNT];
     private int valueCounter = 0;
+    private int barCounter = 0;
     private boolean standing = false, climbUp = false, climbDown = false, walking = false, running = false, sitting = false;
     private boolean isFirst = true;
-    private double barAvg = 0;
+    private double barAvg = 0, prevBarAvg = 0;
 
     public int stepCount = 0;
     public int climbCount = 0;
-    private boolean isLow = true, isHigh = true;
+    private boolean isLow = true, isHigh = true, stepped = false;
 
     /**
      * In practise you will use some kind of dependency injection pattern.
@@ -146,29 +145,30 @@ public class MainApplication extends Application {
         }
 
 
-        predict(ax, ay, az, bar);
+        predict(ax, ay, az, bar, bpm, temp);
 
-//        long current =  new Date().getTime();
-//        long diff = current - timer;
-
-        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2));
+        double acc = Math.sqrt(Math.pow(ax, 2) + Math.pow(ay, 2) + Math.pow(az, 2));
         SensorsActivity.updateProgress(bpm, (float) acc, (float) temp);
-
-//        if (diff > 3000 && mDataList.size() > 10)
-//        {
-//            makeCall();
-//            mDataList.removeAll(mDataList);
-//            timer = current;
-//            //Toast.makeText(this, "SENT WIFI", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        if (mDataList.size() < 100) {
-//            mDataList.add(new SensorData(ax, ay, az, gx, gy, gz, temp, bpm));
-//        }
     }
 
-    private void predict(double x, double y, double z, double avgBar) {
+    private void predict(double x, double y, double z, double avgBar, int pulse, double temp) {
         boolean prevStanding = standing, prevClimbDown = climbDown, prevClimbUp = climbUp, prevWalking = walking, prevRunning = running, prevSitting = sitting;
+
+        if (y < -12 && isLow) {
+            isHigh = true;
+            isLow = false;
+            stepCount++;
+            stepped = true;
+            if (currentActivity == ActivityType.ClimbUp || currentActivity == ActivityType.ClimbDown) {
+                climbCount++;
+            }
+            Toast.makeText(tempThis, "Step Count: " + stepCount, Toast.LENGTH_SHORT).show();
+        }
+        else if(y > -9 && isHigh) {
+            isLow = true;
+            isHigh = false;
+        }
+
 
         if (valueCounter < VALUE_COUNT) {
             lastValues[0][valueCounter] = x;
@@ -176,20 +176,6 @@ public class MainApplication extends Application {
             lastValues[2][valueCounter] = z;
             lastValues[3][valueCounter] = x * x + z * z + y;
             lastValues[4][valueCounter++] = avgBar;
-
-            if (y < -12 && isLow) {
-                isHigh = true;
-                isLow = false;
-                stepCount++;
-                if (currentActivity == ActivityType.ClimbUp || currentActivity == ActivityType.ClimbDown) {
-                    climbCount++;
-                }
-                Toast.makeText(tempThis, "Step Count: " + stepCount, Toast.LENGTH_SHORT).show();
-            }
-            else if(y > -9 && isHigh) {
-                isLow = true;
-                isHigh = false;
-            }
         }
         else {
             valueCounter = 0;
@@ -197,8 +183,7 @@ public class MainApplication extends Application {
             double avgFormula = 0, maxY = lastValues[3][0], minY = lastValues[3][0];
             double avgZ = 0, maxZ = lastValues[2][0], minZ = lastValues[2][0];
             double avgY = 0;
-            double prevBar = barAvg;
-            barAvg = 0;
+
             for (int i = 0; i < VALUE_COUNT; i++) {
                 double itemZ = lastValues[2][i];
                 avgZ += itemZ;
@@ -206,15 +191,17 @@ public class MainApplication extends Application {
                 if (itemZ < minZ) minZ = itemZ;
 
                 avgY += lastValues[1][i];
-
-                double item = lastValues[3][i];
-                avgFormula += item;
+                double item = lastValues[1][i];
                 if (item > maxY) maxY = item;
                 if (item < minY) minY = item;
 
+                avgFormula += lastValues[3][i];
+
                 barAvg += lastValues[4][i];
             }
-            barAvg = barAvg / VALUE_COUNT;
+
+
+
             avgY = avgY / VALUE_COUNT;
             avgZ = avgZ / VALUE_COUNT;
             avgFormula = avgFormula / VALUE_COUNT;
@@ -223,69 +210,100 @@ public class MainApplication extends Application {
             double sdY = sd.evaluate(lastValues[1]);
             double sdZ = sd.evaluate(lastValues[2]);
 
+
+            if (barCounter == 2) {
+                barAvg = barAvg / (VALUE_COUNT * (barCounter + 1));
+//                climbDown = (barAvg - prevBarAvg < -0.4 && prevBarAvg != 0) || maxY - minY > 11 ;
+//                climbUp = barAvg - prevBarAvg > 0.4 && prevBarAvg != 0;
+
+                climbUp = (sdY < 3.5 && sdY > 2.5) || (barAvg - prevBarAvg > 0.3 && prevBarAvg != 0);
+                prevBarAvg = barAvg;
+                barCounter = -1;
+                barAvg = 0;
+            }
+            barCounter++;
+
             boolean isStill = sdX < 1.3 && sdY < 1.5 && sdZ < 1.0;
-            standing = isStill && avgY < -7;
-            climbDown = prevBar - barAvg >= 0.25 && !isFirst;
-            climbUp = barAvg - prevBar >= 0.2 && !isFirst;
-            walking = avgZ > 1.8  && avgFormula > -4;
+
+            standing = isStill && y < -7;
+            climbDown = sdY > 3.5 && maxY - minY > 15;
+            //climbDown = maxY - minY > 10 && barAvg - prevBar < -0.2 && !isFirst;
+
+            //climbUp = barAvg - prevBar > 0.3 && !isFirst;
+//            climbDown = prevBar - barAvg >= 0.25 && !isFirst;
+//            climbUp = barAvg - prevBar >= 0.2 && !isFirst;
+            walking = stepped;
+            stepped = false;
             running = maxZ - minZ > 19;
             sitting = isStill && !standing;
 
+//            String message = "standing: ";
+//            message += standing ? "true\n": "false\n";
+//            message += "climbDown: ";
+//            message += climbDown ? "true\n": "false\n";
+//            message += "climbUp: false\n";
+//            message += "walk: ";
+//            message += walking ? "true\n" : "false\n";
+//            message += "run: ";
+//            message += running ? "true\n" : "false\n";
+//            message += "sit: ";
+//            message += sitting ? "true\n" : "false\n";
+//            Toast.makeText(tempThis, message, Toast.LENGTH_SHORT).show();
+
             // Evaluate here with previous flags
-            if (running && (prevRunning || isFirst)) {
-                Toast.makeText(tempThis, "RUNNING", Toast.LENGTH_SHORT).show();
+            if (running) {
+                //Toast.makeText(tempThis, "RUNNING", Toast.LENGTH_SHORT).show();
                 currentActivity = ActivityType.Running;
             }
-            else if (standing && (prevStanding || isFirst)){
-                Toast.makeText(tempThis, "STANDING", Toast.LENGTH_SHORT).show();
+            else if (standing){
+                //Toast.makeText(tempThis, "STANDING", Toast.LENGTH_SHORT).show();
                 currentActivity = ActivityType.Standing;
             }
-            else if (sitting && (prevSitting || isFirst)) {
-                Toast.makeText(tempThis, "SITTING", Toast.LENGTH_SHORT).show();
+            else if (sitting) {
+                //Toast.makeText(tempThis, "SITTING", Toast.LENGTH_SHORT).show();
                 currentActivity = ActivityType.Sitting;
             }
-            else if (walking && (prevWalking || isFirst)){
-                if (climbDown) {
-                    Toast.makeText(tempThis, "STAIRS DOWN", Toast.LENGTH_SHORT).show();
+            else if (walking){
+                if (climbDown && (prevClimbDown || isFirst)) {
+                    //Toast.makeText(tempThis, "STAIRS DOWN", Toast.LENGTH_SHORT).show();
                     currentActivity = ActivityType.ClimbDown;
                 }
-                else if (climbUp) {
-                    Toast.makeText(tempThis, "STAIRS UP", Toast.LENGTH_SHORT).show();
+                else if (climbUp && (prevClimbUp || isFirst)) {
+                    //Toast.makeText(tempThis, "STAIRS UP", Toast.LENGTH_SHORT).show();
                     currentActivity = ActivityType.ClimbUp;
                 }
                 else {
-                    Toast.makeText(tempThis, "WALKING", Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(tempThis, "WALKING", Toast.LENGTH_SHORT).show();
                     currentActivity = ActivityType.Walking;
                 }
             }
 
+            if (currentActivity != null) makeCall(temp, pulse);
             isFirst = false;
         }
     }
 
     private void onConnectionFailure(Throwable throwable) {
-        Toast.makeText(this, "BT ERROR " + throwable.getMessage(), Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "BT Failed to connect. Please try again!", Toast.LENGTH_SHORT).show();
         Log.e("BT", throwable.getMessage());
         long current = System.currentTimeMillis() - connectionFailureTimer;
         connectionFailureTimer = System.currentTimeMillis();
         btOn = false;
+        makeCall(15.0, 81);
     }
 
-    private void makeCall() {
-        Call<PredictResult> request = apiInterface.sendData(new RawDataRequest(mDataList));
+    private void makeCall(double temp, int pulse) {
+        Call<PredictResult> request = apiInterface.sendData(new RawDataRequest(new SensorData(currentActivity == null ? -1 : currentActivity.ordinal(), temp, pulse)));
 
         request.enqueue(new Callback<PredictResult>() {
             @Override
             public void onResponse(Call<PredictResult> call, Response<PredictResult> response) {
-                if (response.body() != null && response.body().activity != null) {
-                    currentActivity = ActivityType.values()[response.body().activity];
-                }
-                mDataList = new ArrayList<>();
+                Log.d("WIFI", "" + response.code());
             }
 
             @Override
             public void onFailure(Call<PredictResult> call, Throwable t) {
-                mDataList = new ArrayList<>();
+                Log.e("WIFI", t.getMessage());
             }
         });
     }

@@ -93,6 +93,7 @@ public class BluetoothActivity extends AppCompatActivity implements
     private void initBtButton() {
         wifi_button.setOnClickListener(view -> {
             boolean error = false;
+            String hostAddr = "";
             if (TextUtils.isEmpty(ssid.getText())) {
                 ssid.setError("SSID Required!!!");
                 error = true;
@@ -101,6 +102,13 @@ public class BluetoothActivity extends AppCompatActivity implements
                 host.setError("Host Address Required!!!");
                 error = true;
             }
+            else {
+                hostAddr = host.getText().toString();
+                if (hostAddr.charAt(host.length() - 1) != '/') {
+                    hostAddr += '/';
+                }
+                app.setBaseUrl(hostAddr);
+            }
             if (TextUtils.isEmpty(password.getText())) {
                 password.setError("Password Required!!!");
                 error = true;
@@ -108,37 +116,12 @@ public class BluetoothActivity extends AppCompatActivity implements
 
             if (error) return;
 
-            String hostAddr = host.getText().toString();
-            if (hostAddr.charAt(host.length() - 1) != '/') {
-                hostAddr += '/';
-            }
+
             String btMessage = ssid.getText().toString() + "," + password.getText().toString() + "," + hostAddr;
 
 
             //app.setBaseUrl(hostAddr);
             app.deviceInterface.sendMessage(btMessage);
-        });
-    }
-
-    private void makeCall() {
-        Call<SensorResponse> request = MainApplication.getApiInterface(this, customBase).getLastData();
-
-        request.enqueue(new Callback<SensorResponse>() {
-            @Override
-            public void onResponse(Call<SensorResponse> call, Response<SensorResponse> response) {
-                int code = response.code();
-                SensorResponse res = response.body();
-                try {
-                    //wifi_text.setText(res.data.get(0).toString());
-                } catch (NullPointerException ex) {
-                    Log.d("WIFI", ex.toString());
-                }
-            }
-
-            @Override
-            public void onFailure(Call<SensorResponse> call, Throwable t) {
-                //wifi_text.setText("SERVER ERROR");
-            }
         });
     }
 

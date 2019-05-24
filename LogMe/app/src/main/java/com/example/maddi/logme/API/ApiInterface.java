@@ -17,6 +17,6 @@ public interface ApiInterface {
     @GET("service/getLastData")
     Call<SensorResponse> getLastData();
 
-    @POST("service/validation")
+    @POST("service/activity")
     Call<PredictResult> sendData(@Body RawDataRequest request);
 }
