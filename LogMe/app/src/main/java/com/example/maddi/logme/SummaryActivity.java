@@ -139,13 +139,13 @@ public class SummaryActivity extends AppCompatActivity implements
                             .setIndex(mSeries3Index)
                             .build());
 
-                    final TextView textToGo = findViewById(R.id.textRemaining);
+
                     final TextView textPercentage = findViewById(R.id.textPercentage);
 
 
                     float percentFilled = (dailyClimb + dailyRun + dailyWalk) / mSeriesMax;
                     textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
-                    textToGo.setText("of Week");
+
 
 
                 }
@@ -174,33 +174,31 @@ public class SummaryActivity extends AppCompatActivity implements
                 .build();
 
         final TextView textPercentage = findViewById(R.id.textPercentage);
+        final TextView textToGo = findViewById(R.id.textRemaining);
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                if(flag != 2){
-                    float percentFilled = (((walkCount + runCount + climbCount) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
-                    textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
 
-                    ++flag;
-                }
 
             }
 
             @Override
             public void onSeriesItemDisplayProgress(float percentComplete) {
-
+                if(flag != 1){
+                    float percentFilled = (((walkCount + runCount + climbCount) - seriesItem.getMinValue()) / (seriesItem.getMaxValue() - seriesItem.getMinValue()));
+                    textPercentage.setText(String.format("%.2f%%", percentFilled * 100f));
+                    textToGo.setText("of Week");
+                    ++flag;
+                }
             }
         });
 
 
-        final TextView textToGo = findViewById(R.id.textRemaining);
+
         seriesItem.addArcSeriesItemListener(new SeriesItem.SeriesItemListener() {
             @Override
             public void onSeriesItemAnimationProgress(float percentComplete, float currentPosition) {
-                if(flag != 2) {
-                    textToGo.setText("of Week");
-                    ++flag;
-                }
+
             }
 
             @Override
@@ -323,7 +321,7 @@ public class SummaryActivity extends AppCompatActivity implements
         for(ActivityCounter activityCounter : activityCounters){
             walkCount += activityCounter.walk_count;
             runCount += activityCounter.run_count;
-            climbCount = activityCounter.up_count + activityCounter.down_count;
+            climbCount += (activityCounter.up_count + activityCounter.down_count);
         }
     }
 
