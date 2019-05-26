@@ -42,6 +42,7 @@ public class ClimbCounterActivity extends AppCompatActivity implements
 
             //Serverdan güncellenecek
             climbCounter = application.climbCount;
+            update();
             mHandler.postDelayed(this, 100);
 
 
